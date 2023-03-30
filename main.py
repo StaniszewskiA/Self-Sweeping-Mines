@@ -1,7 +1,7 @@
 import random
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 
-def print_board(board_size, bombs):
+def generate_board(board_size, bombs):
     #Making an empty set of bombs
     bomb_positions = set()
     #Populating the set with bombs
@@ -19,31 +19,44 @@ def print_board(board_size, bombs):
                 if (i,j) not in bomb_positions:
                     positions[(i,j)] = positions.get((i,j), 0) + 1
 
+    # Create an empty 2D array to represent the board
+    board = [[0 for _ in range(board_size)] for _ in range(board_size)]
+
+    colors = {
+        1: Fore.BLUE,
+        2: Fore.GREEN,
+        3: Fore.RED,
+        4: Fore.MAGENTA,
+        5: Fore.BLUE,
+        6: Fore.GREEN,
+        7: Fore.RED,
+        8: Fore.MAGENTA
+    }
+
     for row in range(board_size):
         for col in range(board_size):
             pos = (row, col)
             if pos in bomb_positions:
-                print("B", end="\t")
+                board[row][col] = 'B'
             elif pos in positions:
+                #We use CYAN as default color if printed number would somehow exceed our dictionary
                 count = positions[pos]
-                if count == 1:
-                    print(Fore.BLUE + "1", end="\t" + Style.RESET_ALL)
-                elif count == 2:
-                    print(Fore.GREEN + "2", end="\t" + Style.RESET_ALL)
-                elif count == 3:
-                    print(Fore.RED + "3", end="\t" + Style.RESET_ALL)
-                elif count == 4:
-                    print(Fore.MAGENTA + "4", end="\t" + Style.RESET_ALL)
-            else:
-                print("0", end='\t')
-        print()
+                color = colors.get(count, Fore.CYAN)
+                board[row][col] = f"{color}{count}{Style.RESET_ALL}"
+            else: board[row][col] = '0'
 
+    return board
 
 board_size = 9
 bombs = 10
 
 def main():
-    print_board(board_size, bombs)
+    board = generate_board(board_size, bombs)
+    for row in board:
+        for item in row:
+            print(item, end='\t')
+        print()
 
 if __name__ == "__main__":
     main()
+
