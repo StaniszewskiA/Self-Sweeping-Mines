@@ -17,7 +17,7 @@ def print_board(board_size, bombs):
         for i in range(max(1, row-1), min(board_size, row+2)):
             for j in range(max(1, col-1), min(board_size, col+2)):
                 if (i,j) not in bomb_positions:
-                    positions[(i,j)] = positi ons.get((i,j), 0) + 1
+                    positions[(i,j)] = positions.get((i,j), 0) + 1
 
     for row in range(1, board_size + 1):
         for col in range(1, board_size + 1):
