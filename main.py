@@ -6,7 +6,7 @@ def print_board(board_size, bombs):
     bomb_positions = set()
     #Populating the set with bombs
     while len(bomb_positions) < bombs:
-        pos = (random.randint(1, board_size), random.randint(1, board_size))
+        pos = (random.randint(0, board_size-1), random.randint(0, board_size-1))
         bomb_positions.add(pos)
 
     #Making an empty dictionary of bombs' positions
@@ -14,13 +14,13 @@ def print_board(board_size, bombs):
     #Populating the dictionary with indices of tiles adjecent to bombs
     for bomb_pos in bomb_positions:
         row, col = bomb_pos
-        for i in range(max(1, row-1), min(board_size, row+2)):
-            for j in range(max(1, col-1), min(board_size, col+2)):
+        for i in range(max(0, row-1), min(board_size, row+2)):
+            for j in range(max(0, col-1), min(board_size, col+2)):
                 if (i,j) not in bomb_positions:
                     positions[(i,j)] = positions.get((i,j), 0) + 1
 
-    for row in range(1, board_size + 1):
-        for col in range(1, board_size + 1):
+    for row in range(board_size):
+        for col in range(board_size):
             pos = (row, col)
             if pos in bomb_positions:
                 print("B", end="\t")
@@ -37,6 +37,7 @@ def print_board(board_size, bombs):
             else:
                 print("0", end='\t')
         print()
+
 
 board_size = 9
 bombs = 10
