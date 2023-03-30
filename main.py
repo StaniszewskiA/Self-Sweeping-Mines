@@ -20,7 +20,7 @@ def generate_board(board_size, bombs):
                     positions[(i,j)] = positions.get((i,j), 0) + 1
 
     # Create an empty 2D array to represent the board
-    board = [[0 for _ in range(board_size)] for _ in range(board_size)]
+    board = [['0' for _ in range(board_size)] for _ in range(board_size)]
 
     colors = {
         1: Fore.BLUE,
@@ -39,11 +39,9 @@ def generate_board(board_size, bombs):
             if pos in bomb_positions:
                 board[row][col] = 'B'
             elif pos in positions:
-                #We use CYAN as default color if printed number would somehow exceed our dictionary
                 count = positions[pos]
                 color = colors.get(count, Fore.CYAN)
                 board[row][col] = f"{color}{count}{Style.RESET_ALL}"
-            else: board[row][col] = '0'
 
     return board
 
@@ -52,11 +50,32 @@ bombs = 10
 
 def main():
     board = generate_board(board_size, bombs)
-    for row in board:
-        for item in row:
-            print(item, end='\t')
-        print()
+    #Creating an empty 9x9 2D array for player
+    empty_board = [['-' for _ in range(board_size)] for _ in range(board_size)]
+
+    while True:
+        # Print the empty board for the player
+        for row in empty_board:
+            print(" ".join(row))
+        try:
+            coordY, coordX = map(int, input("Choose coordinates (separated by a space): ").split())
+            if coordX == 0 or coordY == 0:
+                print("Invalid input. Please choose coordinates within the board size.")
+                continue
+            if board[coordX - 1][coordY - 1] == "B":
+                print("Game over!")
+                # reveal the entire board
+                for row in board:
+                    print(" ".join(row))
+                break
+            else:
+                print("Go on!")
+                # Update the player's empty board with the revealed tile
+                empty_board[coordX - 1][coordY - 1] = board[coordX - 1][coordY - 1]
+        except ValueError:
+            print("Invalid input. Please enter two integers separated by a space.")
+        except IndexError:
+            print("Invalid input. Please choose coordinates within the board size.")
 
 if __name__ == "__main__":
     main()
-
