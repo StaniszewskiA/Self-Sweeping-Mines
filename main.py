@@ -48,10 +48,38 @@ def generate_board(board_size, bombs):
 board_size = 9
 bombs = 10
 
+def reveal_zeroes(board, empty_board, row, col, revealed_tiles):
+    #Revealing 0's with DFS algorithm
+    if empty_board[row][col] == '-':
+        if board[row][col] != '0':
+            empty_board[row][col] = board[row][col]
+            revealed_tiles += 1
+        else:
+            empty_board[row][col] = '0'
+            revealed_tiles += 1
+            for r in range(max(0, row-1), min(row+2, len(board))):
+                for c in range(max(0, col-1), min(col+2, len(board[0]))):
+                    if (r != row or c != col) and board[r][c] == '0':
+                        revealed_tiles = reveal_zeroes(board, empty_board, r, c, revealed_tiles)
+                    elif (r != row or c != col) and board[r][c].isdigit():
+                        empty_board[r][c] = board[r][c]
+                        revealed_tiles += 1
+    return revealed_tiles
+
+def reveal_numbers(board, empty_board, row, col):
+    if empty_board[row][col] == '-':
+        if board[row][col] == '0':
+            reveal_zeroes(board, empty_board, row, col)
+        elif board[row][col] != 'B':
+            empty_board[row][col] = board[row][col]
+
 def main():
+    board_size = 9
+    bombs = 10
     board = generate_board(board_size, bombs)
     #Creating an empty 9x9 2D array for player
     empty_board = [['-' for _ in range(board_size)] for _ in range(board_size)]
+    revealed_tiles = 0
 
     while True:
         # Print the empty board for the player
@@ -68,14 +96,21 @@ def main():
                 for row in board:
                     print(" ".join(row))
                 break
+            elif board[coordX - 1][coordY - 1] == '0':
+                print("Go on!")
+                revealed_tiles = reveal_zeroes(board, empty_board, coordX - 1, coordY - 1, revealed_tiles)
             else:
                 print("Go on!")
-                # Update the player's empty board with the revealed tile
                 empty_board[coordX - 1][coordY - 1] = board[coordX - 1][coordY - 1]
+                revealed_tiles += 1
+            if revealed_tiles == board_size**2 - bombs:
+                print("Congratulations! You won!")
+                break
         except ValueError:
             print("Invalid input. Please enter two integers separated by a space.")
         except IndexError:
             print("Invalid input. Please choose coordinates within the board size.")
+
 
 if __name__ == "__main__":
     main()
