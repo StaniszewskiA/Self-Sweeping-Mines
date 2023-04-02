@@ -1,3 +1,4 @@
+import os
 import random
 from colorama import Fore, Style
 
@@ -45,9 +46,6 @@ def generate_board(board_size, bombs):
 
     return board
 
-board_size = 9
-bombs = 10
-
 def reveal_zeroes(board, empty_board, row, col, revealed_tiles):
     #Revealing 0's with DFS algorithm
     if empty_board[row][col] == '-':
@@ -66,13 +64,6 @@ def reveal_zeroes(board, empty_board, row, col, revealed_tiles):
                         revealed_tiles += 1
     return revealed_tiles
 
-def reveal_numbers(board, empty_board, row, col):
-    if empty_board[row][col] == '-':
-        if board[row][col] == '0':
-            reveal_zeroes(board, empty_board, row, col)
-        elif board[row][col] != 'B':
-            empty_board[row][col] = board[row][col]
-
 def main():
     board_size = 9
     bombs = 10
@@ -80,35 +71,50 @@ def main():
     #Creating an empty board_size x board_size 2D array for player
     empty_board = [['-' for _ in range(board_size)] for _ in range(board_size)]
     revealed_tiles = 0
+    flags = set()
 
     while True:
-        #Print the empty board for the player
+        #Print empty board for the player
         for row in empty_board:
             print(" ".join(row))
         try:
-            coordY, coordX = map(int, input("Choose coordinates (separated by a space): ").split())
-            if coordX == 0 or coordY == 0:
-                print("Invalid input. Please choose coordinates within board size.")
-                continue
-            if board[coordX - 1][coordY - 1] == "B":
-                print("Game over!")
-                #Reveal the entire board
-                for row in board:
-                    print(" ".join(row))
-                break
-            elif board[coordX - 1][coordY - 1] == "0":
-                print("Go on!")
-                revealed_tiles = reveal_zeroes(board, empty_board, coordX - 1, coordY - 1, revealed_tiles)
+            user_input = input("Choose coordinates (separated by a space) , or an action (f): ")
+            if 'f' in user_input:
+                coordY, coordX = map(int, user_input.split()[:-1])
+                if empty_board[coordX - 1][coordY - 1] == '-':
+                    empty_board[coordX - 1][coordY - 1] = 'F'
+                    flags.add((coordX - 1, coordY - 1))
+                elif empty_board[coordX - 1][coordY - 1] == 'F':
+                    empty_board[coordX - 1][coordY - 1] = '-'
+                    flags.remove((coordX - 1, coordY - 1))
+                else:
+                    print("This tile has already been revealed.")
             else:
-                print("Go on!")
-                empty_board[coordX - 1][coordY - 1] = board[coordX - 1][coordY - 1]
-                revealed_tiles += 1
-            if revealed_tiles == board_size**2 - bombs:
-                print("Congratulations! You won!")
-                # reveal the entire board
-                for row in board:
-                    print(" ".join(row))
-                break
+                coordY, coordX = map(int, user_input.split())
+                if coordX == 0 or coordY == 0:
+                    print("Invalid input. Please choose coordinates within board size.")
+                    continue
+
+                if board[coordX - 1][coordY - 1] == "B":
+                    print("Game over!")
+                    #Reveal the entire board
+                    for row in board:
+                        print(" ".join(row))
+                    break
+                elif board[coordX - 1][coordY - 1] == "0":
+                    print("Go on!")
+                    revealed_tiles = reveal_zeroes(board, empty_board, coordX - 1, coordY - 1, revealed_tiles)
+                else:
+                    print("Go on!")
+                    empty_board[coordX - 1][coordY - 1] = board[coordX - 1][coordY - 1]
+                    revealed_tiles += 1
+
+                if revealed_tiles == board_size**2 - bombs:
+                    print("You won!")
+                    #Reveal the entire board
+                    for row in board:
+                        print(" ".join(row))
+                    break
         except ValueError:
             print("Invalid input. Please enter two integers separated by a space.")
         except IndexError:
