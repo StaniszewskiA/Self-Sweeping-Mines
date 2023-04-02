@@ -77,26 +77,26 @@ def main():
     board_size = 9
     bombs = 10
     board = generate_board(board_size, bombs)
-    #Creating an empty 9x9 2D array for player
+    #Creating an empty board_size x board_size 2D array for player
     empty_board = [['-' for _ in range(board_size)] for _ in range(board_size)]
     revealed_tiles = 0
 
     while True:
-        # Print the empty board for the player
+        #Print the empty board for the player
         for row in empty_board:
             print(" ".join(row))
         try:
             coordY, coordX = map(int, input("Choose coordinates (separated by a space): ").split())
             if coordX == 0 or coordY == 0:
-                print("Invalid input. Please choose coordinates within the board size.")
+                print("Invalid input. Please choose coordinates within board size.")
                 continue
             if board[coordX - 1][coordY - 1] == "B":
                 print("Game over!")
-                # reveal the entire board
+                #Reveal the entire board
                 for row in board:
                     print(" ".join(row))
                 break
-            elif board[coordX - 1][coordY - 1] == '0':
+            elif board[coordX - 1][coordY - 1] == "0":
                 print("Go on!")
                 revealed_tiles = reveal_zeroes(board, empty_board, coordX - 1, coordY - 1, revealed_tiles)
             else:
@@ -105,12 +105,14 @@ def main():
                 revealed_tiles += 1
             if revealed_tiles == board_size**2 - bombs:
                 print("Congratulations! You won!")
+                # reveal the entire board
+                for row in board:
+                    print(" ".join(row))
                 break
         except ValueError:
             print("Invalid input. Please enter two integers separated by a space.")
         except IndexError:
             print("Invalid input. Please choose coordinates within the board size.")
-
 
 if __name__ == "__main__":
     main()
