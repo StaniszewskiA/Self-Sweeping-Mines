@@ -109,4 +109,11 @@ class MinesweeperGame:
                             revealed_tiles += 1
         return revealed_tiles
 
+def main():
+    game = MinesweeperGame()
+    board = game.board
+    for row in board:
+        print(" ".join(row))
 
+if __name__ == '__main__':
+    main()
