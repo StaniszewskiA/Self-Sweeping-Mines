@@ -64,7 +64,6 @@ def reveal_zeroes(board, empty_board, row, col, revealed_tiles):
                         revealed_tiles += 1
     return revealed_tiles
 
-
 def main():
     board_size = 9
     bombs = 1
