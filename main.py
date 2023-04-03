@@ -1,6 +1,4 @@
 import random
-import seaborn as sns
-import matplotlib.pyplot as plt
 from colorama import Fore, Style
 
 
@@ -66,16 +64,10 @@ def reveal_zeroes(board, empty_board, row, col, revealed_tiles):
                         revealed_tiles += 1
     return revealed_tiles
 
-def display_board(board):
-    board_copy = [[0 if cell == '-' or cell == 'M' or cell == 'X' else int(cell) for cell in row] for row in board]
-    ax = sns.heatmap(board_copy, annot=True, cbar=False, cmap='gray_r', linewidths=.5, square=True, fmt='d')
-    ax.set_xlabel('Column')
-    ax.set_ylabel('Row')
-    plt.show()
 
 def main():
     board_size = 9
-    bombs = 10
+    bombs = 1
     board = generate_board(board_size, bombs)
     #Creating an empty board_size x board_size 2D array for player
     empty_board = [['-' for _ in range(board_size)] for _ in range(board_size)]
@@ -83,8 +75,6 @@ def main():
     flags = set()
 
     while True:
-        # Display the board
-
         # Print empty board for the player
         for row in empty_board:
             print(" ".join(row))
@@ -126,6 +116,8 @@ def main():
             if revealed_tiles == board_size ** 2 - bombs:
                 # All non-bomb tiles have been revealed
                 print("Congratulations, you won!")
+                for row in board:
+                    print(" ".join(row))
                 break
         except ValueError:
             print("Invalid input. Please enter two integers separated by a space.")
