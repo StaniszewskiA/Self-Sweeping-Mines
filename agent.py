@@ -109,33 +109,11 @@ class MinesweeperGame:
                             revealed_tiles += 1
         return revealed_tiles
 
-class QLearningAgent:
-    def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1):
-        self.alpha = alpha #Learning rate
-        self.gamma = gamma #discount factor
-        self.epsilon = epsilon #Exploration rate
-        self.q_table = {} #Q-function table
-
-    def init_q_table(self):
-        pass
-    def get_state(self):
-        pass
-    def get_action(self):
-        pass
-    def update_q_table(self):
-        pass
-    def play(self):
-        pass
-    def train(self):
-        pass
-    def test(self):
-        pass
-
 def main():
     game = MinesweeperGame()
     board = game.board
     for row in board:
-        print(" ".join(row))
+        print(' '.join(row))
 
 if __name__ == '__main__':
     main()
