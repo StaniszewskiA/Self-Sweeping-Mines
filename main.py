@@ -1,7 +1,32 @@
-import os
 import random
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 from colorama import Fore, Style
 
+def plot_board(board):
+    df = pd.DataFrame(board)
+    colors = {
+        'B': 'black',
+        '1': 'blue',
+        '2': 'green',
+        '3': 'red',
+        '4': 'magenta',
+        '5': 'cyan',
+        '6': 'yellow',
+        '7': 'orange',
+        '8': 'purple',
+        '0': 'white',
+        '-': 'grey',
+        'F': 'limegreen'
+    }
+    color_map = [[colors[x] for x in row] for row in board]
+    ax = sns.heatmap(df, cmap=color_map, linewidths=.5, cbar=False,
+                     annot=True, fmt='s', annot_kws={"fontsize":16, "color":"white"})
+    ax.set_xticklabels([i+1 for i in range(len(board))], fontsize=12)
+    ax.set_yticklabels([i + 1 for i in range(len(board))], fontsize=12)
+    plt.title("Minesweeper", fontsize=16)
+    plt.show()
 def generate_board(board_size, bombs):
     #Making an empty set of bombs
     bomb_positions = set()
