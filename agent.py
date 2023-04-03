@@ -1,6 +1,4 @@
 import random
-import numpy as np
-import tensorflow as tf
 from colorama import Fore, Style
 
 def generate_board(board_size, bombs):
