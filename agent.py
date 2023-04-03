@@ -49,11 +49,11 @@ def generate_board(board_size, bombs):
 
 class MinesweeperGame:
     def __init__(self, board_size=9, bombs=10):
-        self.board_zie = board_size
+        self.board_size = board_size
         self.bombs = bombs
         self.board = generate_board(board_size, bombs)
         self.empty_board = [['-' for _ in range(board_size)] for _ in range(board_size)]
-        self.reveals_tiles = 0
+        self.revealed_tiles = 0
         self.flags = set()
         self.game_over = False
         self.winner = False
@@ -64,7 +64,7 @@ class MinesweeperGame:
             if self.board[row][col] == 'B':
                 #Game over
                 self.game_over = True
-                self.reveals_tiles += 1
+                self.reveal_tiles += 1
             elif self.board[row][col] == '0':
                 # Reveal all the adjacent tiles with DFS algorithm
                 self.revealed_tiles = self._reveal_zeroes(row, col, self.revealed_tiles)
@@ -108,4 +108,5 @@ class MinesweeperGame:
                             self.empty_board[r][c] = self.board[r][c]
                             revealed_tiles += 1
         return revealed_tiles
+
 
