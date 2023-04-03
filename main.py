@@ -1,32 +1,9 @@
 import random
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from colorama import Fore, Style
 
-def plot_board(board):
-    df = pd.DataFrame(board)
-    colors = {
-        'B': 'black',
-        '1': 'blue',
-        '2': 'green',
-        '3': 'red',
-        '4': 'magenta',
-        '5': 'cyan',
-        '6': 'yellow',
-        '7': 'orange',
-        '8': 'purple',
-        '0': 'white',
-        '-': 'grey',
-        'F': 'limegreen'
-    }
-    color_map = [[colors[x] for x in row] for row in board]
-    ax = sns.heatmap(df, cmap=color_map, linewidths=.5, cbar=False,
-                     annot=True, fmt='s', annot_kws={"fontsize":16, "color":"white"})
-    ax.set_xticklabels([i+1 for i in range(len(board))], fontsize=12)
-    ax.set_yticklabels([i + 1 for i in range(len(board))], fontsize=12)
-    plt.title("Minesweeper", fontsize=16)
-    plt.show()
+
 def generate_board(board_size, bombs):
     #Making an empty set of bombs
     bomb_positions = set()
@@ -89,6 +66,13 @@ def reveal_zeroes(board, empty_board, row, col, revealed_tiles):
                         revealed_tiles += 1
     return revealed_tiles
 
+def display_board(board):
+    board_copy = [[0 if cell == '-' or cell == 'M' or cell == 'X' else int(cell) for cell in row] for row in board]
+    ax = sns.heatmap(board_copy, annot=True, cbar=False, cmap='gray_r', linewidths=.5, square=True, fmt='d')
+    ax.set_xlabel('Column')
+    ax.set_ylabel('Row')
+    plt.show()
+
 def main():
     board_size = 9
     bombs = 10
@@ -99,12 +83,16 @@ def main():
     flags = set()
 
     while True:
-        #Print empty board for the player
+        # Display the board
+
+        # Print empty board for the player
         for row in empty_board:
             print(" ".join(row))
         try:
-            user_input = input("Choose coordinates (separated by a space) , or an action (f): ")
+            # Get user input
+            user_input = input("Choose coordinates (separated by a space), or an action (f): ")
             if 'f' in user_input:
+                # Flag or unflag the tile
                 coordY, coordX = map(int, user_input.split()[:-1])
                 if empty_board[coordX - 1][coordY - 1] == '-':
                     empty_board[coordX - 1][coordY - 1] = 'F'
@@ -115,31 +103,30 @@ def main():
                 else:
                     print("This tile has already been revealed.")
             else:
+                # Reveal the tile
                 coordY, coordX = map(int, user_input.split())
                 if coordX == 0 or coordY == 0:
                     print("Invalid input. Please choose coordinates within board size.")
                     continue
 
                 if board[coordX - 1][coordY - 1] == "B":
+                    # Game over
                     print("Game over!")
-                    #Reveal the entire board
+                    # Reveal the entire board
                     for row in board:
                         print(" ".join(row))
                     break
-                elif board[coordX - 1][coordY - 1] == "0":
-                    print("Go on!")
+                elif board[coordX - 1][coordY - 1] == '0':
+                    # Reveal all the adjacent tiles with DFS algorithm
                     revealed_tiles = reveal_zeroes(board, empty_board, coordX - 1, coordY - 1, revealed_tiles)
                 else:
-                    print("Go on!")
+                    # Reveal the tile
                     empty_board[coordX - 1][coordY - 1] = board[coordX - 1][coordY - 1]
                     revealed_tiles += 1
-
-                if revealed_tiles == board_size**2 - bombs:
-                    print("You won!")
-                    #Reveal the entire board
-                    for row in board:
-                        print(" ".join(row))
-                    break
+            if revealed_tiles == board_size ** 2 - bombs:
+                # All non-bomb tiles have been revealed
+                print("Congratulations, you won!")
+                break
         except ValueError:
             print("Invalid input. Please enter two integers separated by a space.")
         except IndexError:
