@@ -1,123 +1,112 @@
 import random
-import numpy as np
-from colorama import Fore, Style
+from game import MinesweeperGame, actions
 
-def generate_board(board_size, bombs):
-    #Making an empty set of bombs
-    bomb_positions = set()
-    #Populating the set with bombs
-    while len(bomb_positions) < bombs:
-        pos = (random.randint(0, board_size - 1), random.randint(0, board_size - 1))
-        bomb_positions.add(pos)
-
-    #Making an empty dictionary of bombs' positions
-    positions = {}
-    #Populating the dictionary with indices of tiles adjecent to bombs
-    for bomb_pos in bomb_positions:
-        row, col = bomb_pos
-        for i in range(max(0, row - 1), min(board_size, row + 2)):
-            for j in range(max(0, col - 1), min(board_size, col + 2)):
-                if (i, j) not in bomb_positions:
-                    positions[(i, j)] = positions.get((i, j), 0) + 1
-
-    #Create an empty 2D array to represent the board
-    board = [['0' for _ in range(board_size)] for _ in range(board_size)]
-
-    colors = {
-        1: Fore.BLUE,
-        2: Fore.GREEN,
-        3: Fore.RED,
-        4: Fore.MAGENTA,
-        5: Fore.BLUE,
-        6: Fore.GREEN,
-        7: Fore.RED,
-        8: Fore.MAGENTA
-    }
-
-    for row in range(board_size):
-        for col in range(board_size):
-            pos = (row, col)
-            if pos in bomb_positions:
-                board[row][col] = 'B'
-            elif pos in positions:
-                count = positions[pos]
-                color = colors.get(count, Fore.CYAN)
-                board[row][col] = f"{color}{count}{Style.RESET_ALL}"
-
-    return board
-
-class MinesweeperGame:
-    def __init__(self, board_size=9, bombs=10):
-        self.board = board_size
+class QLearningAgent:
+    def __init__(self, board_size, bombs, epsilon=0.1, alpha=0.5, gamma=0.9):
+        self.board_size = board_size
         self.bombs = bombs
-        self.board = generate_board(board_size, bombs)
-        self.empty_board = [['-' for _ in range(board_size)] for _ in range(board_size)]
-        self.revealed_tiles = 0
-        self.flags = set()
-        self.game_over = False
-        self.winner = False
-        self.score = 0
+        self.epsilon = epsilon
+        self.alpha = alpha
+        self.gamma = gamma
+        self.q_table = self._init_q_table()
 
-        def reveal_tile(self, row, col):
-            if self.empty_board[row][col] == '-':
-                if self.board[row][col] == 'B':
-                    self.game_over = True
-                    self.revealed_tiles += 1
-                elif self.board[row][col] == '0':
-                    #Reveal all the adjecent tiles with DFS algorithm
-                    self.revealed_tiles = self._reveal_zeroes(row, col, self.revealed_tiles)
-                else:
-                    # Reveal the tile
-                    self.empty_board[row][col] = self.board[row][col]
-                    self.revealed_tiles += 1
+    def _init_q_table(self):
+        q_table = {}
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                q_table[(i,j)] = {'R': 0, 'F': 0}
+        return q_table
+
+    def _choose_action(self, state):
+        if random.uniform(0, 1) < self.epsilon:
+            # Select a random action
+            action = random.choice(actions[state])
+        else:
+            # Select the best actions based on Q values:
+            q_values = self.q_table[str(state)]  # convert state to a string
+            max_q_value = max(q_values.values())
+            # In case of multiple max values, choose randomly
+            max_actions = [a for a, q in q_values.items() if q == max_q_value]
+            action = random.choice(max_actions)
+        return action
+
+    def _update_q_table(self, state, action, reward, next_state):
+        old_q_value = self.q_table[state][action]
+        next_q_values = self.q_table[next_state]
+        next_max_q_value = max(next_q_values())
+        new_q_value = (1 - self.alpha) * old_q_value + self.alpha * (reward + self.gamma * next_max_q_value)
+        self.q_table[state][action] = new_q_value
+
+    def train(self, episodes):
+        for episode in range(episodes):
+            #Reset the game
+            game = MinesweeperGame(self.board_size, self.bombs)
+            state = game.empty_board
+            done = False
+
+            while not done:
+                #Choose an action
+                action = self._choose_action(str(state))
+
+                #Execute the action
+                row, col, act = action
+                if act == 'R':
+                    game.reveal_tile(row, col)
+                elif act == 'F':
+                    game.flag_tile(row, col)
+
+                next_state = game.empty_board
+                reward = game.score
+
+                #Update Q table
+                self._update_q_table(str(state), action, reward, str(next_state))
+
+                state = next_state
+
+                #Check if the game is over
+                done = game.game_over or game.winner
+
+            print(f"Episode {episode + 1}: Score = {game.score}")
+
+    def test(self, episodes):
+        win_count = 0
+        loss_count = 0
+        for episode in range(episodes):
+            #Reset the game
+            game = MinesweeperGame(self.board_size, self.bombs)
+            state = game.empty_board
+            done = False
+
+            while not done:
+                #Choose an action
+                q_values = self.q_table[str(state)]
+                max_q_value = max(q_values.values())
+                #In case of multiple max values, choose one randomly
+                max_actions = [a for a, q in q_values.items() if q == max_q_value]
+                action = random.choice(max_actions)
+
+                # Execute the action
+                row, col, act = action
+                if act == 'R':
+                    game.reveal_tile(row, col)
+                elif act == 'F':
+                    game.flag_tile(row, col)
+
+                state = game.empty_board
+
+                done = game.game_over or game.winner
+
+            if game.winner:
+                print(f"Episode {episode + 1}: WIN")
+                win_count += 1
             else:
-                print("This tile has already been revealed.")
-
-            if self.revealed_tiles == self.board_size ** 2 - self.bombs:
-                #All non-bomb tiles have been revealed
-                self.winner = True
-
-        def flag_tile(self, row, col):
-            if self.empty_board[row][col] == '-':
-                self.empty_board[row][col] = 'F'
-                self.flags.add((row, col))
-            elif self.empty_board[row][col] == 'F':
-                self.empty_board[row][col] = '-'
-                self.flags.remove((row, col))
-            else:
-                print("This tile has already been revealed.")
-
-        def _reveal_zeroes(self, row, col, revealed_tiles):
-            # Revealing 0's with DFS algorithm
-            if self.empty_board[row][col] == '-':
-                if self.board[row][col] != '0':
-                    self.empty_board[row][col] = self.board[row][col]
-                    revealed_tiles += 1
-                else:
-                    self.empty_board[row][col] = '0'
-                    revealed_tiles += 1
-                    for r in range(max(0, row - 1), min(row + 2, len(self.board))):
-                        for c in range(max(0, col - 1), min(col + 2, len(self.board[0]))):
-                            if (r != row or c != col) and self.board[r][c] == '0':
-                                revealed_tiles = self._reveal_zeroes(r, c, revealed_tiles)
-                            elif (r != row or c != col) and self.board[r][c].isdigit():
-                                self.empty_board[r][c] = self.board[r][c]
-                                revealed_tiles += 1
-            return revealed_tiles
-
-#Actions table
-actions = []
-for i in range(10):
-    for j in range(10):
-        actions.append(((i, j), [(i, j, 'R'), (i, j, 'F')]))
+                print(f"Episode {episode + 1}: LOSS")
+                loss_count += 1
 
 def main():
+    agent =  QLearningAgent(board_size=8, bombs=10)
+    agent.train(episodes=10000)
+    agent.test(episodes=3)
 
-    game = MinesweeperGame()
-    board = game.board
-    for row in board:
-        print(' '.join(row))
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
