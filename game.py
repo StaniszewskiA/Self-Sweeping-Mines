@@ -48,74 +48,68 @@ def generate_board(board_size, bombs):
 
 class MinesweeperGame:
     def __init__(self, board_size=9, bombs=10):
-        self.board = board_size
+        self.board_size = board_size
         self.bombs = bombs
         self.board = generate_board(board_size, bombs)
-        self.empty_board = [['-1' for _ in range(board_size)] for _ in range(board_size)]
+        self.empty_board = [[f'({i},{j})' for j in range(board_size)] for i in range(board_size)]
         self.revealed_tiles = 0
         self.flags = set()
         self.game_over = False
         self.winner = False
         self.score = 0
 
-        def reveal_tile(self, row, col):
-            if self.empty_board[row][col] == '-1':
-                if self.board[row][col] == 'B':
-                    self.score -= 10
-                    self.game_over = True
-                    self.revealed_tiles += 1
-                elif self.board[row][col] == '0':
-                    #Reveal all the adjecent tiles with DFS algorithm
-                    self.score +=1
-                    self.revealed_tiles = self._reveal_zeroes(row, col, self.revealed_tiles)
-                else:
-                    # Reveal the tile
-                    self.score += 1
-                    self.empty_board[row][col] = self.board[row][col]
-                    self.revealed_tiles += 1
+    def reveal_tile(self, row, col):
+        if self.empty_board[row][col] == '-1':
+            if self.board[row][col] == 'B':
+                self.score -= 10
+                self.game_over = True
+                self.revealed_tiles += 1
+            elif self.board[row][col] == '0':
+                #Reveal all the adjecent tiles with DFS algorithm
+                self.score +=1
+                self.revealed_tiles = self._reveal_zeroes(row, col, self.revealed_tiles)
             else:
-                self.score -= 1
-                print("This tile has already been revealed.")
+                # Reveal the tile
+                self.score += 1
+                self.empty_board[row][col] = self.board[row][col]
+                self.revealed_tiles += 1
+        else:
+            self.score -= 1
+            print("This tile has already been revealed.")
 
-            if self.revealed_tiles == self.board_size ** 2 - self.bombs:
-                #All non-bomb tiles have been revealed
-                self.score = +10
-                self.winner = True
+        if self.revealed_tiles == self.board_size ** 2 - self.bombs:
+            #All non-bomb tiles have been revealed
+            self.score = +10
+            self.winner = True
 
-        def flag_tile(self, row, col):
-            if self.empty_board[row][col] == '-1':
-                self.empty_board[row][col] = 'F'
-                self.flags.add((row, col))
-            elif self.empty_board[row][col] == 'F':
-                self.empty_board[row][col] = '-1'
-                self.flags.remove((row, col))
+    def flag_tile(self, row, col):
+        if self.empty_board[row][col] == '-1':
+            self.empty_board[row][col] = 'F'
+            self.flags.add((row, col))
+        elif self.empty_board[row][col] == 'F':
+            self.empty_board[row][col] = '-1'
+            self.flags.remove((row, col))
+        else:
+            self.score -= 1
+            print("This tile has already been revealed.")
+
+    def _reveal_zeroes(self, row, col, revealed_tiles):
+        # Revealing 0's with DFS algorithm
+        if self.empty_board[row][col] == '-1':
+            if self.board[row][col] != '0':
+                self.empty_board[row][col] = self.board[row][col]
+                revealed_tiles += 1
             else:
-                self.score -= 1
-                print("This tile has already been revealed.")
-
-        def _reveal_zeroes(self, row, col, revealed_tiles):
-            # Revealing 0's with DFS algorithm
-            if self.empty_board[row][col] == '-1':
-                if self.board[row][col] != '0':
-                    self.empty_board[row][col] = self.board[row][col]
-                    revealed_tiles += 1
-                else:
-                    self.empty_board[row][col] = '0'
-                    revealed_tiles += 1
-                    for r in range(max(0, row - 1), min(row + 2, len(self.board))):
-                        for c in range(max(0, col - 1), min(col + 2, len(self.board[0]))):
-                            if (r != row or c != col) and self.board[r][c] == '0':
-                                revealed_tiles = self._reveal_zeroes(r, c, revealed_tiles)
-                            elif (r != row or c != col) and self.board[r][c].isdigit():
-                                self.empty_board[r][c] = self.board[r][c]
-                                revealed_tiles += 1
-            return revealed_tiles
-
-#Actions table
-actions = []
-for i in range(10):
-    for j in range(10):
-        actions.append(((i, j), [(i, j, 'R'), (i, j, 'F')]))
+                self.empty_board[row][col] = '0'
+                revealed_tiles += 1
+                for r in range(max(0, row - 1), min(row + 2, len(self.board))):
+                    for c in range(max(0, col - 1), min(col + 2, len(self.board[0]))):
+                        if (r != row or c != col) and self.board[r][c] == '0':
+                            revealed_tiles = self._reveal_zeroes(r, c, revealed_tiles)
+                        elif (r != row or c != col) and self.board[r][c].isdigit():
+                            self.empty_board[r][c] = self.board[r][c]
+                            revealed_tiles += 1
+        return revealed_tiles
 
 def main():
 
