@@ -10,11 +10,16 @@ class QLearningAgent:
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
-        self.q_table = self._init_q_table()
         self.actions = actions
 
     def _init_q_table(self):
-        pass
+        q_table = {}
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                for action in self.actions:
+                    q_table[((i,j), action)] = 0
+        print(len(q_table))
+        return q_table
 
     def _choose_action(self, state):
         pass
@@ -28,14 +33,16 @@ class QLearningAgent:
     def test(self, episodes):
         pass
 
+
 def main():
     board_size = 9
     bombs = 10
     actions = [(i, j, 'R') for i in range(board_size) for j in range(board_size)] + \
               [(i, j, 'F') for i in range(board_size) for j in range(board_size)]
-    agent =  QLearningAgent(board_size, bombs, actions)
+    agent = QLearningAgent(board_size, bombs, actions)
     agent.train(episodes=10000)
     agent.test(episodes=3)
+    agent._init_q_table()
 
 if __name__ == "__main__":
     main()
