@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from colorama import Fore, Style
 
 def generate_board(board_size, bombs):
@@ -104,11 +105,19 @@ class MinesweeperGame:
                                 revealed_tiles += 1
             return revealed_tiles
 
+#Actions table
+actions = []
+for i in range(10):
+    for j in range(10):
+        actions.append(((i, j), [(i, j, 'R'), (i, j, 'F')]))
+
 def main():
+
     game = MinesweeperGame()
     board = game.board
     for row in board:
         print(' '.join(row))
+
 
 if __name__ == '__main__':
     main()
