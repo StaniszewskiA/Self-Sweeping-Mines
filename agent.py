@@ -1,6 +1,9 @@
 import random
 import numpy as np
+
+import test_agent
 from game import MinesweeperGame
+import unittest
 
 
 class QLearningAgent:
@@ -15,9 +18,9 @@ class QLearningAgent:
 
     def _init_q_table(self):
         #q_table made with dictionary comprehension
-        q_table = {((i,j), action): 0 for i in range(self.board_size)
-                                        for j in range(self.board_size)
-                                        for action in self.actions}
+        q_table = {(i, j, action): 0 for i in range(self.board_size)
+                   for j in range(self.board_size)
+                   for action in self.actions}
         print(len(q_table))
         return q_table
 
@@ -27,37 +30,31 @@ class QLearningAgent:
             return random.choice(self.actions)
         #Otherwise, use the Q-table
         else:
-            state_actions = [((state[0], state[1]), a) for a in self.actions]
+            state_actions = [(state[0], state[1], a) for a in self.actions]
             q_values = [self.q_table.get(sa, 0) for sa in state_actions]
             max_q_value = max(q_values)
             max_actions = [a for a, q in zip(self.actions, q_values) if q == max_q_value]
             return random.choice(max_actions)
 
-    def _update_q_table(self, state, action, reward, next_state):
+    def _update_q_table(self, state, action, reward, next_state, done):
         pass
 
-    def train(self, episodes):
+    def train_model(self, episodes):
         pass
 
-    def test(self, episodes):
+    def run_model(self, episodes):
         pass
 
 
 def main():
-    board_size = 9
-    bombs = 10
-    actions = [(i, j, 'R') for i in range(board_size) for j in range(board_size)] + \
-              [(i, j, 'F') for i in range(board_size) for j in range(board_size)]
+    from test_agent import TestQLearningAgent
+    #Creating a test suite
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite((TestQLearningAgent)))
 
-    agent = QLearningAgent(board_size, bombs, actions)
-    """
-    agent.train(episodes=10000)
-    agent.test(episodes=3)
-    agent._init_q_table()
-    """
-    state = ((0,0), 'R')
-    action = agent._choose_action(state)
-    print(action)
+    #Run the test suite
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
 
 if __name__ == "__main__":
     main()
