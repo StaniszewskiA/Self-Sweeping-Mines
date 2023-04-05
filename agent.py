@@ -10,6 +10,7 @@ class QLearningAgent:
         self.gamma = gamma
         self.actions = actions
         self.q_table = self._init_q_table()
+        self.taken_actions = []
 
     def _init_q_table(self):
         #q_table made with dictionary comprehension
@@ -21,14 +22,21 @@ class QLearningAgent:
     def _choose_action(self, state):
         #Explore with propability epsilon
         if random.random() < self.epsilon:
-            return random.choice(self.actions)
+            #Preventing the agent from choosing the same action again
+            return random.choice([a for a in self.actions if a not in self.taken_actions])
         #Otherwise, use the Q-table
         else:
             state_actions = [(state[0], state[1], a) for a in self.actions]
             q_values = [self.q_table.get(sa, 0) for sa in state_actions]
             max_q_value = max(q_values)
-            max_actions = [a for a, q in zip(self.actions, q_values) if q == max_q_value]
-            return random.choice(max_actions)
+            # Preventing the agent from choosing the same action again
+            max_actions = [a for a, q in zip(self.actions, q_values) if q == max_q_value and a not in self.taken_actions]
+            if max_actions:
+                action = random.choice(max_actions)
+            else:
+                action = random.choice([a for a in self.actions if a not in self.taken_actions])
+            self.taken_actions.append(action)
+            return action
 
     def _update_q_table(self, state, action, reward, next_state, done):
         #Get the current Q-value for the state-action pair
