@@ -1,5 +1,6 @@
 import random
 import unittest
+from gameForAI import MinesweeperGame
 
 class QLearningAgent:
     def __init__(self, board_size, bombs, actions, epsilon=0.1, alpha=0.5, gamma=0.9):
@@ -20,6 +21,7 @@ class QLearningAgent:
         return q_table
 
     def _choose_action(self, state):
+        state = tuple(state)
         #Explore with propability epsilon
         if random.random() < self.epsilon:
             #Preventing the agent from choosing the same action again
@@ -45,8 +47,15 @@ class QLearningAgent:
         self.q_table[sa] += self.alpha * (reward + self.gamma * max_q_next - self.q_table[sa])
 
     def train_model(self, episodes):
-        for _ in range(episodes):
-            print(f"Q-table: {self.q_table}")
+        for i in range(episodes):
+            game = MinesweeperGame(self.board_size, self.bombs)
+            state = game.get_state()
+            done = False
+            while not done:
+                action = self._choose_action(state)
+                next_state, reward, done = game.step(action)
+                self._update_q_table(state, action, reward, next_state)
+                state = next_state
 
     def run_model(self, episodes):
         pass
@@ -66,12 +75,15 @@ def main():
 if __name__ == "__main__":
     main()
 
+    board_size = 9
+    bombs = 10
+
     actions = []
     for i in range(10):
         for j in range(10):
-            actions.extend([(i, j, 'R'), (i, j, 'F')])
-    print(actions)
+            actions.extend([(i, j, 'R'), (i, j, 'F')])  #Append each tuple separately
 
-    agent = QLearningAgent(board_size=9, bombs=10,actions=actions)
+
+    agent = QLearningAgent(board_size=board_size, bombs=bombs,actions=actions)
     agent.train_model(episodes=1)
 

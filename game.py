@@ -2,61 +2,64 @@ import random
 import numpy as np
 from colorama import Fore, Style
 
-def generate_board(board_size, bombs):
-    #Making an empty set of bombs
-    bomb_positions = set()
-    #Populating the set with bombs
-    while len(bomb_positions) < bombs:
-        pos = (random.randint(0, board_size - 1), random.randint(0, board_size - 1))
-        bomb_positions.add(pos)
-
-    #Making an empty dictionary of bombs' positions
-    positions = {}
-    #Populating the dictionary with indices of tiles adjecent to bombs
-    for bomb_pos in bomb_positions:
-        row, col = bomb_pos
-        for i in range(max(0, row - 1), min(board_size, row + 2)):
-            for j in range(max(0, col - 1), min(board_size, col + 2)):
-                if (i, j) not in bomb_positions:
-                    positions[(i, j)] = positions.get((i, j), 0) + 1
-
-    #Create an empty 2D array to represent the board
-    board = [['0' for _ in range(board_size)] for _ in range(board_size)]
-
-    colors = {
-        1: Fore.BLUE,
-        2: Fore.GREEN,
-        3: Fore.RED,
-        4: Fore.MAGENTA,
-        5: Fore.BLUE,
-        6: Fore.GREEN,
-        7: Fore.RED,
-        8: Fore.MAGENTA
-    }
-
-    for row in range(board_size):
-        for col in range(board_size):
-            pos = (row, col)
-            if pos in bomb_positions:
-                board[row][col] = 'B'
-            elif pos in positions:
-                count = positions[pos]
-                color = colors.get(count, Fore.CYAN)
-                board[row][col] = f"{color}{count}{Style.RESET_ALL}"
-
-    return board
-
 class MinesweeperGame:
-    def __init__(self, board_size=9, bombs=10):
+    def __init__(self, board_size, bombs):
         self.board_size = board_size
         self.bombs = bombs
-        self.board = generate_board(board_size, bombs)
-        self.empty_board = [[f'({i},{j})' for j in range(board_size)] for i in range(board_size)]
-        self.revealed_tiles = 0
-        self.flags = set()
+        self.board = np.zeros((board_size, board_size), dtype=int)
+        self.empty_board = [['-' for _ in range(board_size)] for _ in range(board_size)]
+        self.visible_board = np.full((board_size, board_size), False, dtype=bool)
         self.game_over = False
-        self.winner = False
-        self.score = 0
+        self.won = False
+        self.num_revealed = 0
+
+        # generate bombs and assign values to cells
+        self.generate_board()
+
+    def generate_board(self):
+        # Making an empty set of bombs
+        bomb_positions = set()
+        # Populating the set with bombs
+        while len(bomb_positions) < self.bombs:
+            pos = (random.randint(0, self.board_size - 1), random.randint(0, self.board_size - 1))
+            bomb_positions.add(pos)
+
+        # Making an empty dictionary of bombs' positions
+        positions = {}
+        # Populating the dictionary with indices of tiles adjecent to bombs
+        for bomb_pos in bomb_positions:
+            row, col = bomb_pos
+            for i in range(max(0, row - 1), min(self.board_size, row + 2)):
+                for j in range(max(0, col - 1), min(self.board_size, col + 2)):
+                    if (i, j) not in bomb_positions:
+                        positions[(i, j)] = positions.get((i, j), 0) + 1
+
+        # Create an empty 2D array to represent the board
+        board = [['0' for _ in range(self.board_size)] for _ in range(self.board_size)]
+
+        colors = {
+            1: Fore.BLUE,
+            2: Fore.GREEN,
+            3: Fore.RED,
+            4: Fore.MAGENTA,
+            5: Fore.BLUE,
+            6: Fore.GREEN,
+            7: Fore.RED,
+            8: Fore.MAGENTA
+        }
+
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                pos = (row, col)
+                if pos in bomb_positions:
+                    board[row][col] = 'B'
+                elif pos in positions:
+                    count = positions[pos]
+                    color = colors.get(count, Fore.CYAN)
+                    board[row][col] = f"{color}{count}{Style.RESET_ALL}"
+
+        self.board = board
+        return board
 
     def reveal_tile(self, row, col):
         if self.empty_board[row][col] == '-1':
@@ -81,6 +84,7 @@ class MinesweeperGame:
             #All non-bomb tiles have been revealed
             self.score = +10
             self.winner = True
+
 
     def flag_tile(self, row, col):
         if self.empty_board[row][col] == '-1':
@@ -111,15 +115,16 @@ class MinesweeperGame:
                             revealed_tiles += 1
         return revealed_tiles
 
-def main():
 
-    game = MinesweeperGame()
+def main():
+    #This is version of minesweeper a human can play
+    game = MinesweeperGame(9, 10)
     board = game.board
     empty = game.empty_board
     for row in empty:
-        print(' '.join(row))
+        print(' '.join(str(cell) for cell in row))
     for row in board:
-        print(' '.join(row))
+        print(' '.join(str(cell) for cell in row))
 
 
 if __name__ == '__main__':
