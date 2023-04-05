@@ -5,9 +5,9 @@ class QLearningAgent:
     def __init__(self, board_size, bombs, actions, epsilon=0.1, alpha=0.5, gamma=0.9):
         self.board_size = board_size
         self.bombs = bombs
-        self.epsilon = epsilon
-        self.alpha = alpha
-        self.gamma = gamma
+        self.epsilon = epsilon #Exploration rate
+        self.alpha = alpha #Learning rate
+        self.gamma = gamma #Discount factor
         self.actions = actions
         self.q_table = self._init_q_table()
         self.taken_actions = []
@@ -38,21 +38,15 @@ class QLearningAgent:
             self.taken_actions.append(action)
             return action
 
-    def _update_q_table(self, state, action, reward, next_state, done):
-        #Get the current Q-value for the state-action pair
-        q_value = self.q_table.get((state[0], state[1], action), 0)
-
-        #Calculate the maximum Q-value for the next state
-        next_state_actions = [(next_state[0], next_state[1], action) for a in self.actions]
-        next_state_q_values = [self.q_table.get(nsa, 0) for nsa in next_state_actions]
-        max_next_state_q_value = max(next_state_q_values)
-
-        #Update the Q-value for the state-action pair using Q-learning update rule
-        new_q_value = q_value + self.alpha * (reward + self.gamma * max_next_state_q_value - q_value)
-        self.q_table[(state[0], state[1], action)] = new_q_value
+    def _update_q_table(self, state, action, reward, next_state):
+        #Update the Q-value for the given state-action pair with Q-Learning update rule
+        sa = (state[0], state[1], action)
+        max_q_next = max([self.q_table.get((next_state[0], next_state[1], a), 0) for a in self.actions])
+        self.q_table[sa] += self.alpha * (reward + self.gamma * max_q_next - self.q_table[sa])
 
     def train_model(self, episodes):
-        pass
+        for _ in range(episodes):
+            print(f"Q-table: {self.q_table}")
 
     def run_model(self, episodes):
         pass
@@ -66,7 +60,18 @@ def main():
 
     #Run the test suite
     runner = unittest.TextTestRunner()
-    runner.run(suite)
+    result = runner.run(suite)
+
 
 if __name__ == "__main__":
     main()
+
+    actions = []
+    for i in range(10):
+        for j in range(10):
+            actions.extend([(i, j, 'R'), (i, j, 'F')])
+    print(actions)
+
+    agent = QLearningAgent(board_size=9, bombs=10,actions=actions)
+    agent.train_model(episodes=1)
+
