@@ -1,5 +1,5 @@
 from unittest import TestCase
-from  gameForAI import MinesweeperGame
+from  game import MinesweeperGame
 
 class TestMinesweeperGame(TestCase):
 

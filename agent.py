@@ -1,6 +1,6 @@
 import random
 import unittest
-from gameForAI import MinesweeperGame
+from game import MinesweeperGame
 
 class QLearningAgent:
     def __init__(self, board_size, bombs, actions, epsilon=0.1, alpha=0.5, gamma=0.9):
