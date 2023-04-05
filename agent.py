@@ -31,7 +31,17 @@ class QLearningAgent:
             return random.choice(max_actions)
 
     def _update_q_table(self, state, action, reward, next_state, done):
-        pass
+        #Get the current Q-value for the state-action pair
+        q_value = self.q_table.get((state[0], state[1], action), 0)
+
+        #Calculate the maximum Q-value for the next state
+        next_state_actions = [(next_state[0], next_state[1], action) for a in self.actions]
+        next_state_q_values = [self.q_table.get(nsa, 0) for nsa in next_state_actions]
+        max_next_state_q_value = max(next_state_q_values)
+
+        #Update the Q-value for the state-action pair using Q-learning update rule
+        new_q_value = q_value + self.alpha * (reward + self.gamma * max_next_state_q_value - q_value)
+        self.q_table[(state[0], state[1], action)] = new_q_value
 
     def train_model(self, episodes):
         pass

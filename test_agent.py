@@ -44,8 +44,25 @@ class TestQLearningAgent(TestCase):
         #Ensure that the agent chooses a random action when epsilon is 1
         state = (0,0)
         self.agent.epsilon = 1
-        chosen_action = self.agent._choose_action(state)
-        self.assertIn(chosen_action, self.agent.actions, f"Expected a random action from {self.agent.actions}, but got {chosen_action}")
+        chosen_action_rand = self.agent._choose_action(state)
+        self.assertIn(chosen_action_rand, self.agent.actions, f"Expected a random action from {self.agent.actions}, but got {chosen_action_rand}")
+        print(f"Chosen random action: {chosen_action_rand}")
+
+        #Ensure that agent always chooses a new action
+        mock_q_table_same = {
+            (0, 0, (0, 0)): 0.5,
+            (0, 0, (0, 1)): 0.5,
+            (0, 0, (1, 0)): 0.5,
+            (0, 0, (1, 1)): 0.5,
+        }
+        self.agent.q_table = mock_q_table_same
+        self.agent.epsilon = 0
+        num_repeats = 100
+        actions = []
+        for _ in range(num_repeats):
+            actions.append(self.agent._choose_action(state))
+        unique_actions = set(actions)
+        self.assertEqual(len(unique_actions), len(self.agent.actions), f"Agent did not choose a new action in {num_repeats} repeats")
 
         print("test__chose_action passed")
 
