@@ -1,10 +1,5 @@
 import random
-import numpy as np
-
-import test_agent
-from game import MinesweeperGame
 import unittest
-
 
 class QLearningAgent:
     def __init__(self, board_size, bombs, actions, epsilon=0.1, alpha=0.5, gamma=0.9):
@@ -21,7 +16,6 @@ class QLearningAgent:
         q_table = {(i, j, action): 0 for i in range(self.board_size)
                    for j in range(self.board_size)
                    for action in self.actions}
-        print(len(q_table))
         return q_table
 
     def _choose_action(self, state):

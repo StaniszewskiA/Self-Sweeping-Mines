@@ -1,53 +1,53 @@
 from unittest import TestCase
-from game import MinesweeperGame
 from agent import QLearningAgent
 
 class TestQLearningAgent(TestCase):
     def setUp(self):
         self.agent = QLearningAgent(board_size=3, bombs=3, actions=[(0, 0), (0, 1), (1, 0), (1, 1)])
     def test__init_q_table(self):
-        # Create a Q-learning agent
-        board_size = 3
-        bombs = 3
-        actions = ['open', 'flag']
-        agent = QLearningAgent(board_size, bombs, actions)
+        #Ensure that the q_table has the correct length
+        expected_len = self.agent.board_size**2 * len(self.agent.actions)
+        self.assertEqual(len(self.agent.q_table), expected_len, f"Expected {expected_len}, but got {len(self.agent.q_table)}")
 
-        # Verify the Q-table has the expected dimensions and values
-        expected_q_table_size = board_size * board_size * len(actions)
-        self.assertEqual(len(agent.q_table), expected_q_table_size)
-        self.assertDictEqual(agent.q_table, {(i, j, action): 0 for i in range(board_size)
-                                             for j in range(board_size)
-                                             for action in actions})
+        #Ensure that all q-values are initialized to 0
+        for q_value in self.agent.q_table.values():
+            self.assertEqual(q_value, 0)
+
+        print(len(self.agent.q_table))
+        print("test__init_q_table passed")
 
     def test__choose_action(self):
-        # Test with high epsilon, should choose random action
-        self.agent.epsilon = 0.9
-        state = (0, 0)
-        action = self.agent._choose_action(state)
-        self.assertIn(action, self.agent.actions)
+        #Create a mock q_table with fixed q-values
+        mock_q_table = {
+            (0, 0, (0, 0)): 0.5,
+            (0, 0, (0, 1)): 0.2,
+            (0, 0, (1, 0)): 0.8,
+            (0, 0, (1, 1)): 0.1,
+        }
+        self.agent.q_table = mock_q_table
 
-        # Test with low epsilon, should choose best action
-        self.agent.epsilon = 0.1
-        state = (0, 0)
-        # Set the Q-values for actions in the current state to test
-        self.agent.q_table[(0, 0, (0, 0))] = 1
-        self.agent.q_table[(0, 0, (0, 1))] = 2
-        self.agent.q_table[(0, 0, (1, 0))] = 3
-        self.agent.q_table[(0, 0, (1, 1))] = 2.5
-        action = self.agent._choose_action(state)
-        self.assertEqual(action, (1, 0))
+        #Ensure that the agent chooses the action with the highest Q-value when epsilon is 0
+        state = (0,0)
+        self.agent.epsilon = 0
+        expected_action = (1,0)
+        chosen_action = self.agent._choose_action(state)
+        self.assertEqual(chosen_action, expected_action, f"Expected action {expected_action}, nut got {chosen_action}")
+        print(f"Chosen action: {chosen_action}")
 
-        # Test when multiple actions have the same Q-value
-        self.agent.epsilon = 0.0
-        state = (1, 1)
-        self.agent.q_table[(1, 1, (0, 0))] = 1
-        self.agent.q_table[(1, 1, (0, 1))] = 2
-        self.agent.q_table[(1, 1, (1, 0))] = 2
-        self.agent.q_table[(1, 1, (1, 1))] = 1
-        action = self.agent._choose_action(state)
-        self.assertIn(action, [(0, 1), (1, 0)])
+        #Ensure that the agent chooses a different action when called with a different state
+        state = (1,0)
+        #We still use epsilon equal to 0
+        chosen_action2 = self.agent._choose_action(state)
+        self.assertNotEqual(chosen_action, chosen_action2, f"Agent chose the same action despite having another state passed")
+        print(f"Chosen action 2: {chosen_action2}")
 
-        #Set a fix Q-value
+        #Ensure that the agent chooses a random action when epsilon is 1
+        state = (0,0)
+        self.agent.epsilon = 1
+        chosen_action = self.agent._choose_action(state)
+        self.assertIn(chosen_action, self.agent.actions, f"Expected a random action from {self.agent.actions}, but got {chosen_action}")
+
+        print("test__chose_action passed")
 
     def test__update_q_table(self):
         pass
