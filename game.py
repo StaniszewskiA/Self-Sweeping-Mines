@@ -10,6 +10,7 @@ class MinesweeperGame:
         self.hidden_board = np.full((self.board_size, self.board_size), '-')
         self.bomb_locations = self._place_bombs()
         self.game_over = False
+        self.score = 0
 
     def _place_bombs(self):
         bomb_locations = random.sample(range(self.board_size * self.board_size), self.num_bombs)
@@ -45,7 +46,26 @@ class MinesweeperGame:
         return num_adjacent_bombs
 
     def _uncover(self, row, col):
-        pass
+        if self.hidden_board[row][col] != '-':
+            #Cell has already been uncovered
+            return
+
+        if self.board[row][col] == 1:
+            #Cell is a bomb
+            self.hidden_board[row][col] = '*'
+            self.game_over = True
+            return
+
+        num_adjacent_bombs = self._get_num_adjacent_bombs(row, col)
+        if num_adjacent_bombs == 0:
+            #Recursively uncover all neighbors
+            self.hidden_board[row][col] = ' '
+            neighbors = self._get_neighbors(row, col)
+            for neighbor_row, neighbor_col in neighbors:
+                self._uncover(neighbor_row, neighbor_col)
+
+        else:
+            self.hidden_board[row][col] = str(num_adjacent_bombs)
 
     def _make_move(self, row, col, action):
         pass
