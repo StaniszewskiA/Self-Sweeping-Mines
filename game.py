@@ -20,10 +20,29 @@ class MinesweeperGame:
         return bomb_locations
 
     def _get_neighbors(self, row, col):
-        pass
+        neighbors = []
+        for i in [-1, 0, 1]:
+            for j in [-1, 0, 1]:
+                if i == 0 and j == 0:
+                    continue
+                r = row + i
+                c = col + j
+                if (
+                    r < 0
+                    or r >= self.board_size
+                    or c < 0
+                    or c >= self.board_size
+                ):
+                    continue
+                neighbors.append((r,c))
+        return neighbors
 
-    def _get_num_adjecent_bombs(self, row, col):
-        pass
+    def _get_num_adjacent_bombs(self, row, col):
+        num_adjacent_bombs = 0
+        for neighbor_row, neighbor_col in self._get_neighbors(row, col):
+            if self.board[neighbor_row][neighbor_col] == 1:
+                num_adjacent_bombs += 1
+        return num_adjacent_bombs
 
     def _uncover(self, row, col):
         pass

@@ -62,6 +62,7 @@ class QLearningAgent:
 
 
 def main():
+
     from test_agent import TestQLearningAgent
     #Creating a test suite
     suite = unittest.TestSuite()
@@ -70,6 +71,7 @@ def main():
     #Run the test suite
     runner = unittest.TextTestRunner()
     result = runner.run(suite)
+
 
 
 if __name__ == "__main__":
