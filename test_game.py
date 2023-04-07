@@ -5,19 +5,19 @@ import numpy as np
 class TestMinesweeperGame(TestCase):
 
     def setUp(self):
-        self.game = MinesweeperGame(5,3)
+        self.game = MinesweeperGame(3,1)
 
     def test__place_bombs(self):
         bomb_locations = self.game._place_bombs()
         num_bombs = len(bomb_locations)
 
         #Check that the number of bombs placed is correct
-        self.assertEqual(num_bombs, 3)
+        self.assertEqual(num_bombs, 1)
 
         #Check that all bomb locations are valid
         for row, col in bomb_locations:
-            self.assertLess(row, 5)
-            self.assertLess(col, 5)
+            self.assertLess(row, 3)
+            self.assertLess(col, 3)
             self.assertEqual(self.game.board[row][col], -1)
 
         print("test__place_bombs passed")
@@ -61,10 +61,29 @@ class TestMinesweeperGame(TestCase):
         print("test__get_num_adjecent_bombs passed")
 
     def test__uncover(self):
-        pass
+        self.game.board = np.array([
+            [0, 0, -1],
+            [0, 1, 1],
+            [0, 1, -1]
+        ])
+
+        #Check a tile with no adjacent bombs
+        self.game._uncover(0,0)
+        self.assertEqual(int(self.game.hidden_board[0][0]), 0)
+
+        #Check a tile with adjacent bomb
+        self.game._uncover(2, 1)
+        self.assertEqual(int(self.game.hidden_board[2][1]), 1)
+
+        #Check a tile with more adjacent bombs
+        self.game._uncover(1, 2)
+        self.assertEqual(int(self.game.hidden_board[1][2]), 2)
+
+        # Check a tile with a bomb
+        self.game._uncover(0, 2)
+        self.assertEqual(self.game.hidden_board[0][2], '*')
+
+        print("test__uncover passed")
 
     def test__make_move(self):
-        pass
-
-    def test__get_state(self):
         pass

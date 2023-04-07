@@ -16,8 +16,6 @@ class MinesweeperGame:
     def board_state(self):
         return self.board.copy()
 
-    def visible_board(self):
-        return np.where(self.visible, self.hidden_board, np.full((self.board_size, self.board_size), '-'))
 
     def _place_bombs(self):
         bomb_locations = random.sample(range(self.board_size * self.board_size), self.num_bombs)
@@ -54,7 +52,31 @@ class MinesweeperGame:
         return num_adjacent_bombs
 
     def _uncover(self, row, col):
-        pass
+        stack = [(row,col)]
+        while stack:
+            row, col = stack.pop()
+            if self.hidden_board[row][col] != '-':
+                #Tile has already been uncovered
+                continue
+
+            if self.board[row][col] == -1:
+                #Tile is a bomb
+                self.hidden_board[row][col] = '*'
+                self.game_over = True
+                return
+
+            num_adjacent_bombs = self._get_num_adjacent_bombs(row, col)
+            if num_adjacent_bombs == 0:
+                #Uncover all neighbors
+                self.hidden_board[row][col] = '0'
+                neighbors = self._get_neighbors(row, col)
+                for neighbor_row, neighbor_col in neighbors:
+                    if self.hidden_board[neighbor_row][neighbor_col] == '-':
+                        stack.append((neighbor_row, neighbor_col))
+
+            else:
+                self.hidden_board[row][col] = str(num_adjacent_bombs)
+
 
     def _make_move(self, row, col, action):
         pass
