@@ -11,14 +11,14 @@ class TestMinesweeperGame(TestCase):
         bomb_locations = self.game._place_bombs()
         num_bombs = len(bomb_locations)
 
-        #Check that the number of bobms placed is correct
+        #Check that the number of bombs placed is correct
         self.assertEqual(num_bombs, 3)
 
         #Check that all bomb locations are valid
         for row, col in bomb_locations:
             self.assertLess(row, 5)
             self.assertLess(col, 5)
-            self.assertEqual(self.game.board[row][col], 1)
+            self.assertEqual(self.game.board[row][col], -1)
 
         print("test__place_bombs passed")
 
@@ -34,7 +34,7 @@ class TestMinesweeperGame(TestCase):
         #Ensure that the method doesn't count the bomb at given position as adjacent
         self.game.board = np.array([
             [0, 0, 0],
-            [0, 1, 0],
+            [0, -1, 0],
             [0, 0, 0]
         ])
         num_adjacent_bombs = self.game._get_num_adjacent_bombs(1,1)
@@ -42,18 +42,18 @@ class TestMinesweeperGame(TestCase):
 
         # Ensure that the method count only the bombs at adjacent tiles
         self.game.board = np.array([
-            [0, 0, 1],
-            [1, 1, 1],
-            [1, 1, 1]
+            [0, 0, -1],
+            [-1, -1, -1],
+            [-1, -1, -1]
         ])
         num_adjacent_bombs = self.game._get_num_adjacent_bombs(0, 0)
         self.assertEqual(num_adjacent_bombs, 2)
 
         # Ensure that the method checks every adjacent tiles
         self.game.board = np.array([
-            [1, 1, 1],
-            [1, 1, 1],
-            [1, 1, 1]
+            [-1, -1, -1],
+            [-1, -1, -1],
+            [-1, -1, -1]
         ])
         num_adjacent_bombs = self.game._get_num_adjacent_bombs(1,1)
         self.assertEqual(num_adjacent_bombs, 8)
