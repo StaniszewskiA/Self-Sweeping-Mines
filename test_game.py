@@ -56,9 +56,30 @@ class TestMinesweeperGame(TestCase):
         num_adjacent_bombs = self.game._get_num_adjacent_bombs(1,1)
         self.assertEqual(num_adjacent_bombs, 8)
 
-
     def test__uncover(self):
-        pass
+        self.game.board = np.array([
+            [0, 1, -1],
+            [0, 2, -1],
+            [0, 1, -1]
+        ])
+
+        self.game.hidden_board = np.array([
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+
+        self.game._uncover(0, 0)
+
+        expected_output = np.array([
+            ['0', '-', '-'],
+            ['0', '-', '-'],
+            ['0', '-', '-']
+        ])
+
+        print(self.game.hidden_board)
+        self.assertTrue((self.game.hidden_board == expected_output).all())
+
 
     def test__make_move(self):
         pass

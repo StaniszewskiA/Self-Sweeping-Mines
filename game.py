@@ -49,7 +49,30 @@ class MinesweeperGame:
         return num_adjacent_bombs
 
     def _uncover(self, row, col):
-        pass
+        def _uncover(self, row, col):
+            if self.board[row][col] == -1:
+                # Bomb hit
+                self.hidden_board[row][col] = 'B'
+                self.game_over = True
+            else:
+                # Check if already uncovered
+                if self.hidden_board[row][col] != '-':
+                    return
+                # Update hidden board with number of adjacent bombs
+                num_adjacent_bombs = self._get_num_adjacent_bombs(row, col)
+                self.hidden_board[row][col] = num_adjacent_bombs
+                self.num_uncovered += 1
+                self.score += 1
+                # Check for win condition
+                if self.num_uncovered == (self.board_size * self.board_size) - self.num_bombs:
+                    self.game_over = True
+                # Recursively uncover adjacent tiles if no adjacent bombs
+                if num_adjacent_bombs == 0:
+                    for neighbor_row, neighbor_col in self._get_neighbors(row, col):
+                        self._uncover(neighbor_row, neighbor_col)
+                        # Call reveal_tiles on each adjacent tile that is now uncovered
+                        if self.hidden_board[neighbor_row][neighbor_col] != '-':
+                            self._reveal_tiles(neighbor_row, neighbor_col)
 
     def _make_move(self, row, col, action):
         pass
