@@ -74,11 +74,13 @@ class TestMinesweeperGame(TestCase):
         self.assertEqual(result, 1)
         print(result)
 
-        #Revealing a bomb tile and if revealing it ends the game
+        #Revealing a bomb tile and checking if revealing it ends the game
         result = self.game._reveal(1, 1)
         self.assertTrue(self.game.game_over)
         print(self.game.game_over)
         print(result)
+
+        #Checking scoring and revealing 0's
 
     def test__reveal_zeroes(self):
         pass
