@@ -54,6 +54,7 @@ class MinesweeperGame:
                 self.score -= 10
                 self.game_over = True
                 self.revelead_tiles += 1
+                return self.board[row][col]
             elif self.board[row][col] == 0:
                 #Reveal all the adjacent tiles with DFS algorithm
                 self.score += 1
@@ -63,9 +64,11 @@ class MinesweeperGame:
                 self.score += 1
                 self.hidden_board[row][col] = str(self.board[row][col])
                 self.revelead_tiles += 1
+                return self.board[row][col]
         else:
             self.score -= 1
             print("This tile has already been revealed")
+            return None
 
         if self.revelead_tiles == self.board_size ** 2 - self.num_bombs:
             #All non-bomb tiles have been revealed

@@ -56,7 +56,31 @@ class TestMinesweeperGame(TestCase):
         num_adjacent_bombs = self.game._get_num_adjacent_bombs(1,1)
         self.assertEqual(num_adjacent_bombs, 8)
 
-    def test__uncover(self):
+    def test__reveal(self):
+        self.game.board = np.array([
+            [1, 1, 1],
+            [1, -1, 1],
+            [1, 1, 1]
+        ])
+
+        self.game.hidden_board = np.array([
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+
+        #Revealing a non-bomb tile
+        result = self.game._reveal(0, 0)
+        self.assertEqual(result, 1)
+        print(result)
+
+        #Revealing a bomb tile and if revealing it ends the game
+        result = self.game._reveal(1, 1)
+        self.assertTrue(self.game.game_over)
+        print(self.game.game_over)
+        print(result)
+
+    def test__reveal_zeroes(self):
         pass
 
     def test__make_move(self):
