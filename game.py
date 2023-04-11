@@ -9,9 +9,9 @@ class MinesweeperGame:
         self.board = np.zeros((self.board_size, self.board_size))
         self.hidden_board = np.full((self.board_size, self.board_size), '-')
         self.bomb_locations = self._place_bombs()
-        self.game_over = None
+        self.game_over = False
         self.score = 0
-        self.num_uncovered = 0
+        self.revelead_tiles = 0
 
 
     def _place_bombs(self):
@@ -48,31 +48,48 @@ class MinesweeperGame:
                 num_adjacent_bombs += 1
         return num_adjacent_bombs
 
-    def _uncover(self, row, col):
-        def _uncover(self, row, col):
+    def _reveal(self, row, col):
+        if self.hidden_board[row][col] == '-':
             if self.board[row][col] == -1:
-                # Bomb hit
-                self.hidden_board[row][col] = 'B'
+                self.score -= 10
                 self.game_over = True
-            else:
-                # Check if already uncovered
-                if self.hidden_board[row][col] != '-':
-                    return
-                # Update hidden board with number of adjacent bombs
-                num_adjacent_bombs = self._get_num_adjacent_bombs(row, col)
-                self.hidden_board[row][col] = num_adjacent_bombs
-                self.num_uncovered += 1
+                self.revelead_tiles += 1
+            elif self.board[row][col] == 0:
+                #Reveal all the adjacent tiles with DFS algorithm
                 self.score += 1
-                # Check for win condition
-                if self.num_uncovered == (self.board_size * self.board_size) - self.num_bombs:
-                    self.game_over = True
-                # Recursively uncover adjacent tiles if no adjacent bombs
-                if num_adjacent_bombs == 0:
-                    for neighbor_row, neighbor_col in self._get_neighbors(row, col):
-                        self._uncover(neighbor_row, neighbor_col)
-                        # Call reveal_tiles on each adjacent tile that is now uncovered
-                        if self.hidden_board[neighbor_row][neighbor_col] != '-':
-                            self._reveal_tiles(neighbor_row, neighbor_col)
+                self.revelead_tiles = self._reveal_zeroes(row, col, self.revelead_tiles)
+            else:
+                #Reveal the tile
+                self.score += 1
+                self.hidden_board[row][col] = str(self.board[row][col])
+                self.revelead_tiles += 1
+        else:
+            self.score -= 1
+            print("This tile has already been revealed")
+
+        if self.revelead_tiles == self.board_size ** 2 - self.num_bombs:
+            #All non-bomb tiles have been revealed
+            self.score += 10
+            self.game_over = True
+
+    def _reveal_zeroes(self, row, col, revealed_tiles):
+        # Revealing 0's with DFS algorithm
+        if self.empty_board[row][col] == '-':
+            if self.board[row][col] != 0:
+                self.empty_board[row][col] = self.board[row][col]
+                revealed_tiles += 1
+            else:
+                self.empty_board[row][col] = '0'
+                revealed_tiles += 1
+                for r in range(max(0, row - 1), min(row + 2, len(self.board))):
+                    for c in range(max(0, col - 1), min(col + 2, len(self.board[0]))):
+                        if (r != row or c != col) and self.board[r][c] == 0:
+                            revealed_tiles = self._reveal_zeroes(r, c, revealed_tiles)
+                        elif (r != row or c != col) and self.board[r][c] != -1:
+                            self.empty_board[r][c] = self.board[r][c]
+                            revealed_tiles += 1
+        return revealed_tiles
+
 
     def _make_move(self, row, col, action):
         pass
