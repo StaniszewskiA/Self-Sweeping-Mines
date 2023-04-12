@@ -10,8 +10,9 @@ class MinesweeperGame:
         self.hidden_board = np.full((self.board_size, self.board_size), '-')
         self.bomb_locations = self._place_bombs()
         self.game_over = False
+        self.game_won = False
         self.score = 0
-        self.revelead_tiles = 0
+        self.revealed_tiles = 0
 
 
     def _place_bombs(self):
@@ -53,27 +54,27 @@ class MinesweeperGame:
             if self.board[row][col] == -1:
                 self.score -= 10
                 self.game_over = True
-                self.revelead_tiles += 1
+                self.revealed_tiles += 1
                 return self.board[row][col]
             elif self.board[row][col] == 0:
                 #Reveal all the adjacent tiles with DFS algorithm
                 self.score += 1
-                self.revelead_tiles = self._reveal_zeroes(row, col, self.revelead_tiles)
+                self.revealed_tiles = self._reveal_zeroes(row, col, self.revealed_tiles)
             else:
                 #Reveal the tile
                 self.score += 1
                 self.hidden_board[row][col] = str(self.board[row][col])
-                self.revelead_tiles += 1
+                self.revealed_tiles += 1
                 return self.board[row][col]
         else:
             self.score -= 1
             print("This tile has already been revealed")
             return None
 
-        if self.revelead_tiles == self.board_size ** 2 - self.num_bombs:
+        if self.revealed_tiles == self.board_size ** 2 - self.num_bombs:
             #All non-bomb tiles have been revealed
             self.score += 10
-            self.game_over = True
+            self.game_won = True
 
     def _reveal_zeroes(self, row, col, revealed_tiles):
         # Revealing 0's with DFS algorithm
@@ -122,8 +123,11 @@ class MinesweeperGame:
         else:
             print("Invalid action")
 
-    def _get_board_state(self):
-        return self.hidden_board
+    def _get_state(self):
+        pass
+
+    def _reset(self):
+        pass
 
 def main():
     from test_game import TestMinesweeperGame

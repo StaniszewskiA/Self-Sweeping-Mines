@@ -47,15 +47,7 @@ class QLearningAgent:
         self.q_table[sa] += self.alpha * (reward + self.gamma * max_q_next - self.q_table[sa])
 
     def train_model(self, episodes):
-        for i in range(episodes):
-            game = MinesweeperGame(self.board_size, self.bombs)
-            state = game.get_state()
-            done = False
-            while not done:
-                action = self._choose_action(state)
-                next_state, reward, done = game.step(action)
-                self._update_q_table(state, action, reward, next_state)
-                state = next_state
+        pass
 
     def run_model(self, episodes):
         pass
