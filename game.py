@@ -77,19 +77,19 @@ class MinesweeperGame:
 
     def _reveal_zeroes(self, row, col, revealed_tiles):
         # Revealing 0's with DFS algorithm
-        if self.empty_board[row][col] == '-':
+        if self.hidden_board[row][col] == '-':
             if self.board[row][col] != 0:
-                self.empty_board[row][col] = self.board[row][col]
+                self.hidden_board[row][col] = self.board[row][col]
                 revealed_tiles += 1
             else:
-                self.empty_board[row][col] = '0'
+                self.hidden_board[row][col] = '0'
                 revealed_tiles += 1
                 for r in range(max(0, row - 1), min(row + 2, len(self.board))):
                     for c in range(max(0, col - 1), min(col + 2, len(self.board[0]))):
                         if (r != row or c != col) and self.board[r][c] == 0:
                             revealed_tiles = self._reveal_zeroes(r, c, revealed_tiles)
                         elif (r != row or c != col) and self.board[r][c] != -1:
-                            self.empty_board[r][c] = self.board[r][c]
+                            self.hidden_board[r][c] = self.board[r][c]
                             revealed_tiles += 1
         return revealed_tiles
 

@@ -72,18 +72,61 @@ class TestMinesweeperGame(TestCase):
         #Revealing a non-bomb tile
         result = self.game._reveal(0, 0)
         self.assertEqual(result, 1)
-        print(result)
 
         #Revealing a bomb tile and checking if revealing it ends the game
         result = self.game._reveal(1, 1)
         self.assertTrue(self.game.game_over)
-        print(self.game.game_over)
-        print(result)
 
-        #Checking scoring and revealing 0's
+
+        #Check the scoring system
+        self.game.score = 0
+
+        self.game.board = self.game.board = np.array([
+            [0, 1, 1],
+            [0, 1, -1],
+            [0, 1, 1]
+        ])
+
+        self.game.hidden_board = np.array([
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+
+        self.game._reveal(0,0)
+        self.assertEqual(self.game.score, 1)
+
+        self.game._reveal(1,1)
+        self.assertEqual(self.game.score, 0)
+
+        self.game._reveal(0,2)
+        self.assertEqual(self.game.score, 1)
+
+        self.game._reveal(1,2)
+        self.assertEqual(self.game.score, -9)
 
     def test__reveal_zeroes(self):
-        pass
+        # Revealing 0s
+        self.game.board = self.game.board = np.array([
+            [0, 0, 0],
+            [0, 1, 1],
+            [0, 1, 1]
+        ])
+
+        self.game.hidden_board = np.array([
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+
+        self.game.expected_board = np.array([
+            [0, 0, 0],
+            [0, 1, 1],
+            [0, 1, '-']
+        ])
+
+        self.game._reveal(0, 0)
+        self.assertTrue(np.array_equal(self.game.hidden_board, self.game.expected_board))
 
     def test__make_move(self):
         pass
