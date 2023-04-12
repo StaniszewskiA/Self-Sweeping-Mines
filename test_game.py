@@ -181,7 +181,53 @@ class TestMinesweeperGame(TestCase):
 
 
     def test__make_move(self):
-        pass
+        self.game.board = self.game.board = np.array([
+            [0, 0, 0],
+            [0, 1, 1],
+            [0, 1, -1]
+        ])
+
+        self.game.hidden_board = np.array([
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+
+        #Reveal a zero tile
+        action = (0,0,'R')
+
+        self.game._make_move(action)
+
+        self.assertEqual(int(self.game.hidden_board[0][0]), 0)
+        self.assertEqual(int(self.game.hidden_board[0][1]), 0)
+        self.assertEqual(int(self.game.hidden_board[0][2]), 0)
+        self.assertEqual(int(self.game.hidden_board[1][0]), 0)
+        self.assertEqual(int(self.game.hidden_board[2][0]), 0)
+
+        #Reveal a non-zero tile
+        action = (1,1,'R')
+
+        self.game._make_move(action)
+        self.assertEqual(int(self.game.hidden_board[1][1]), 1)
+
+        #Flag a bomb
+        action = (2,2,'F')
+
+        self.game._make_move(action)
+        self.assertEqual(self.game.hidden_board[2][2], 'F')
+
+        #Unflag a bomb
+        action = (2, 2,'F')
+
+        self.game._make_move(action)
+        self.assertEqual(self.game.hidden_board[2][2], '-')
+
+        #Reveal a bomb
+        action = (2,2,'R')
+
+        self.game._make_move(action)
+        self.assertEqual(self.game.hidden_board[2][2], '-')
+        self.assertEqual(self.game.game_over, True)
 
     def test__board_state(self):
         pass

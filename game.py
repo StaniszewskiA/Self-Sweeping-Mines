@@ -113,8 +113,14 @@ class MinesweeperGame:
             self.score -= 1
             return False
 
-    def _make_move(self, row, col, action):
-        pass
+    def _make_move(self, action):
+        row, col, move = action
+        if move == 'R':
+            self._reveal(row, col)
+        elif move == 'F':
+            self._flag(row, col)
+        else:
+            print("Invalid action")
 
     def _board_state(self):
         pass
