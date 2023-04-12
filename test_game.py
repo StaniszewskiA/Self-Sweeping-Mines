@@ -179,6 +179,7 @@ class TestMinesweeperGame(TestCase):
         self.game._flag(2,2)
         self.assertEqual(self.game.score, -1)
 
+
     def test__make_move(self):
         pass
 
