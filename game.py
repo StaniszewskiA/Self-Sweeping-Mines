@@ -10,7 +10,6 @@ class MinesweeperGame:
         self.hidden_board = np.full((self.board_size, self.board_size), '-')
         self.bomb_locations = self._place_bombs()
         self.game_over = False
-        self.game_won = False
         self.score = 0
         self.revealed_tiles = 0
 
@@ -74,7 +73,7 @@ class MinesweeperGame:
         if self.revealed_tiles == self.board_size ** 2 - self.num_bombs:
             #All non-bomb tiles have been revealed
             self.score += 10
-            self.game_won = True
+            self.game_over = True
 
     def _reveal_zeroes(self, row, col, revealed_tiles):
         # Revealing 0's with DFS algorithm
@@ -124,7 +123,10 @@ class MinesweeperGame:
             print("Invalid action")
 
     def _get_state(self):
-        pass
+        if not self.game_over:
+            return self.game_over, self.score, self.hidden_board
+        else:
+            return self.game_over, self.score, self.board
 
     def _reset(self):
         pass

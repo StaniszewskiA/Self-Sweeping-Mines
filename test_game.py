@@ -253,7 +253,57 @@ class TestMinesweeperGame(TestCase):
         print("Test passed")
 
     def test__get_state(self):
-        pass
+        print("test__get_state")
+        self.game.score = 0
+        self.game.board = self.game.board = np.array([
+            [0, 0, 0],
+            [0, 1, 1],
+            [0, 1, -1]
+        ])
+
+        self.game.hidden_board = np.array([
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+
+        #Checking return statement after making no moves
+        lost, score, board = self.game._get_state()
+
+        self.game.expected_board = np.array([
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+
+        assert not lost
+        self.assertEqual(score, 0)
+        self.assertTrue(np.array_equal(board, self.game.expected_board))
+
+        #Checking return statement after making a valid move
+        action = (1,1,'R')
+        self.game._make_move(action)
+        lost, score, board = self.game._get_state()
+
+        self.game.expected_board = np.array([
+            ['-', '-', '-'],
+            ['-', '1', '-'],
+            ['-', '-', '-']
+        ])
+
+        assert not lost
+        self.assertEqual(score, 1)
+        self.assertTrue(np.array_equal(board, self.game.expected_board))
+
+        #Checking return statement after losing a game
+        action = (2,2,'R')
+        self.game._make_move(action)
+        lost, score, board = self.game._get_state()
+
+        assert lost
+        self.assertEqual(score, -9)
+        self.assertTrue(np.array_equal(board, self.game.board))
+
 
     def test__reset(self):
         pass
