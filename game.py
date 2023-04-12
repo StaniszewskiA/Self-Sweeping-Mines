@@ -122,8 +122,8 @@ class MinesweeperGame:
         else:
             print("Invalid action")
 
-    def _board_state(self):
-        pass
+    def _get_board_state(self):
+        return self.hidden_board
 
 def main():
     from test_game import TestMinesweeperGame
