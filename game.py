@@ -129,7 +129,12 @@ class MinesweeperGame:
             return self.game_over, self.score, self.board
 
     def _reset(self):
-        pass
+        self.board = np.zeros((self.board_size, self.board_size))
+        self.hidden_board = np.full((self.board_size, self.board_size), '-')
+        self.bomb_locations = self._place_bombs()
+        self.game_over = False
+        self.score = 0
+        self.revealed_tiles = 0
 
 def main():
     from test_game import TestMinesweeperGame

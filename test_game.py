@@ -304,6 +304,36 @@ class TestMinesweeperGame(TestCase):
         self.assertEqual(score, -9)
         self.assertTrue(np.array_equal(board, self.game.board))
 
+        print("Test passed")
 
     def test__reset(self):
-        pass
+        print("test__reset")
+
+        #Make some moves
+        self.game.board = self.game.board = np.array([
+            [0, 0, 0],
+            [0, 1, 1],
+            [0, 1, -1]
+        ])
+
+        self.game.hidden_board = np.array([
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+
+        action = (1,1,'R')
+        self.game._make_move(action)
+        lost1, score1, board1 = self.game._get_state()
+        assert not lost1
+        self.assertEqual(score1, 1)
+        self.assertEqual(int(self.game.hidden_board[1][1]), 1)
+
+        self.game._reset()
+        print(self.game.board)
+
+        lost2, score2, board2 = self.game._get_state()
+        assert not lost2
+        self.assertNotEqual(score1, score2)
+
+        print("Test passed")
