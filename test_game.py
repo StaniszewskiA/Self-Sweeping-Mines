@@ -128,10 +128,59 @@ class TestMinesweeperGame(TestCase):
         self.game._reveal(0, 0)
         self.assertTrue(np.array_equal(self.game.hidden_board, self.game.expected_board))
 
+    def test__flag(self):
+        #Test flagging a tile that has not been revealed
+        self.game.hidden_board = np.array([
+            ['-', '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+
+        result = self.game._flag(0,0)
+        self.assertEqual(self.game.hidden_board[0][0], 'F')
+        self.assertEqual(result, True)
+
+        #Test unflagging a flagged tile
+        result = self.game._flag(0,0)
+        self.assertEqual(self.game.hidden_board[0][0], '-')
+        self.assertEqual(result, True)
+
+        #Test flagging an already revealed tile
+        self.game.hidden_board = np.array([
+            [1, '-', '-'],
+            ['-', '-', '-'],
+            ['-', '-', '-']
+        ])
+        result = self.game._flag(0,0)
+        self.assertEqual(result, False)
+
+        #Test flagging a bomb and scoring system
+        self.game.board = self.game.board = np.array([
+            [0, 0, 0],
+            [0, 1, 1],
+            [0, 1, -1]
+        ])
+        self.game.hidden_board = np.array([
+            ['0', '0', '0'],
+            ['0', '1', '1'],
+            ['0', '1', '-']
+        ])
+
+        #Flagging an already revealed tile
+        self.game.score = 0
+        self.game._flag(0,0)
+        self.assertEqual(self.game.score, -1)
+
+        #Flagging a bomb
+        self.game._flag(2,2)
+        self.assertEqual(self.game.score, 0)
+
+        #Unflagging a bomb
+        self.game._flag(2,2)
+        self.assertEqual(self.game.score, -1)
+
     def test__make_move(self):
         pass
-
-
 
     def test__board_state(self):
         pass

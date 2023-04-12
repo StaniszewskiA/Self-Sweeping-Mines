@@ -93,6 +93,25 @@ class MinesweeperGame:
                             revealed_tiles += 1
         return revealed_tiles
 
+    def _flag(self, row, col):
+        if self.hidden_board[row][col] == '-':
+            self.hidden_board[row][col] = 'F'
+            #Increase the score if flagged tile was a bomb
+            if self.board[row][col] == -1:
+                self.score += 1
+            return True
+
+        elif self.hidden_board[row][col] == 'F':
+            self.hidden_board[row][col] = '-'
+            #Decrease the score if unflagged tile was a bomb
+            if self.board[row][col] == -1:
+                self.score -= 1
+            return True
+
+        else:
+            print("This tile has already been revealed and cannot be flagged")
+            self.score -= 1
+            return False
 
     def _make_move(self, row, col, action):
         pass
