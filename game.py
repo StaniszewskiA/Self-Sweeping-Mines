@@ -2,17 +2,28 @@ import random
 import numpy as np
 import unittest
 
+
 class MinesweeperGame:
     def __init__(self, board_size, num_bombs):
         self.board_size = board_size
         self.num_bombs = num_bombs
-        self.board = np.zeros((self.board_size, self.board_size))
+        self.board = self._generate_board(10, 9)
         self.hidden_board = np.full((self.board_size, self.board_size), '-')
         self.bomb_locations = self._place_bombs()
         self.game_over = False
         self.score = 0
         self.revealed_tiles = 0
 
+    def _generate_board(self, board_size, num_bombs):
+        self.board = np.zeros((board_size, board_size), dtype=int)
+        self._place_bombs()
+
+        for y in range(self.board_size):
+            for x in range(self.board_size):
+                if self.board[y][x] != -1:
+                    self.board[y][x] = self._get_num_adjacent_bombs(y, x)
+
+        return self.board
 
     def _place_bombs(self):
         bomb_locations = random.sample(range(self.board_size * self.board_size), self.num_bombs)
@@ -20,7 +31,7 @@ class MinesweeperGame:
 
         for i, j in bomb_locations:
             self.board[i][j] = -1
-        self.board = self.board.astype(int) #Cast to int
+        self.board = self.board.astype(int)  # Cast to int
         return bomb_locations
 
     def _get_neighbors(self, row, col):
@@ -32,13 +43,13 @@ class MinesweeperGame:
                 r = row + i
                 c = col + j
                 if (
-                    r < 0
-                    or r >= self.board_size
-                    or c < 0
-                    or c >= self.board_size
+                        r < 0
+                        or r >= self.board_size
+                        or c < 0
+                        or c >= self.board_size
                 ):
                     continue
-                neighbors.append((r,c))
+                neighbors.append((r, c))
         return neighbors
 
     def _get_num_adjacent_bombs(self, row, col):
@@ -56,11 +67,11 @@ class MinesweeperGame:
                 self.revealed_tiles += 1
                 return self.board[row][col]
             elif self.board[row][col] == 0:
-                #Reveal all the adjacent tiles with DFS algorithm
+                # Reveal all the adjacent tiles with DFS algorithm
                 self.score += 1
                 self.revealed_tiles = self._reveal_zeroes(row, col, self.revealed_tiles)
             else:
-                #Reveal the tile
+                # Reveal the tile
                 self.score += 1
                 self.hidden_board[row][col] = str(self.board[row][col])
                 self.revealed_tiles += 1
@@ -71,7 +82,7 @@ class MinesweeperGame:
             return None
 
         if self.revealed_tiles == self.board_size ** 2 - self.num_bombs:
-            #All non-bomb tiles have been revealed
+            # All non-bomb tiles have been revealed
             self.score += 10
             self.game_over = True
 
@@ -96,14 +107,14 @@ class MinesweeperGame:
     def _flag(self, row, col):
         if self.hidden_board[row][col] == '-':
             self.hidden_board[row][col] = 'F'
-            #Increase the score if flagged tile was a bomb
+            # Increase the score if flagged tile was a bomb
             if self.board[row][col] == -1:
                 self.score += 1
             return True
 
         elif self.hidden_board[row][col] == 'F':
             self.hidden_board[row][col] = '-'
-            #Decrease the score if unflagged tile was a bomb
+            # Decrease the score if unflagged tile was a bomb
             if self.board[row][col] == -1:
                 self.score -= 1
             return True
@@ -129,24 +140,26 @@ class MinesweeperGame:
             return self.game_over, self.score, self.board
 
     def _reset(self):
-        self.board = np.zeros((self.board_size, self.board_size))
-        self.hidden_board = np.full((self.board_size, self.board_size), '-')
-        self.bomb_locations = self._place_bombs()
+        self.board = self._generate_board(3, 1)
         self.game_over = False
         self.score = 0
-        self.revealed_tiles = 0
 
 def main():
     from test_game import TestMinesweeperGame
-    #Creating a test suite
+    # Creating a test suite
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite((TestMinesweeperGame)))
 
-    #Run the test suite
+    # Run the test suite
     runner = unittest.TextTestRunner()
     result = runner.run(suite)
+
 
 if __name__ == "__main__":
     main()
 
     print("Done")
+    #game = MinesweeperGame(10,9)
+    #print(game.board)
+
+    #IMPLEMENT RESETTING HIDDEN BOARD AND UNIT TESTS
