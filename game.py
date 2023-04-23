@@ -23,6 +23,7 @@ class MinesweeperGame:
                 if self.board[y][x] != -1:
                     self.board[y][x] = self._get_num_adjacent_bombs(y, x)
 
+        print(self.board)
         return self.board
 
     def _place_bombs(self):
