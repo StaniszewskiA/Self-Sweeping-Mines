@@ -73,8 +73,8 @@ if __name__ == "__main__":
     bombs = 10
 
     actions = []
-    for i in range(10):
-        for j in range(10):
+    for i in range(board_size+1):
+        for j in range(board_size+1):
             actions.extend([(i, j, 'R'), (i, j, 'F')])  #Append each tuple separately
 
 
