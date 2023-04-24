@@ -7,9 +7,9 @@ class MinesweeperGame:
     def __init__(self, board_size, num_bombs):
         self.board_size = board_size
         self.num_bombs = num_bombs
-        self.board = self._generate_board(10, 9)
+        self.board = self._generate_board(board_size, num_bombs)
         self.hidden_board = np.full((self.board_size, self.board_size), '-')
-        self.bomb_locations = self._place_bombs()
+        #self.bomb_locations = self._place_bombs() do wyrzucenia
         self.game_over = False
         self.score = 0
         self.revealed_tiles = 0
@@ -28,6 +28,7 @@ class MinesweeperGame:
     def _place_bombs(self):
         bomb_locations = random.sample(range(self.board_size * self.board_size), self.num_bombs)
         bomb_locations = [(i // self.board_size, i % self.board_size) for i in bomb_locations]
+
 
         for i, j in bomb_locations:
             self.board[i][j] = -1
@@ -70,10 +71,11 @@ class MinesweeperGame:
                 # Reveal all the adjacent tiles with DFS algorithm
                 self.score += 1
                 self.revealed_tiles = self._reveal_zeroes(row, col, self.revealed_tiles)
+                return self.revealed_tiles
             else:
                 # Reveal the tile
                 self.score += 1
-                self.hidden_board[row][col] = str(self.board[row][col])
+                self.hidden_board[row][col] = self.board[row][col]
                 self.revealed_tiles += 1
                 return self.board[row][col]
         else:
@@ -85,6 +87,7 @@ class MinesweeperGame:
             # All non-bomb tiles have been revealed
             self.score += 10
             self.game_over = True
+    
 
     def _reveal_zeroes(self, row, col, revealed_tiles):
         # Revealing 0's with DFS algorithm
@@ -97,9 +100,9 @@ class MinesweeperGame:
                 revealed_tiles += 1
                 for r in range(max(0, row - 1), min(row + 2, len(self.board))):
                     for c in range(max(0, col - 1), min(col + 2, len(self.board[0]))):
-                        if (r != row or c != col) and self.board[r][c] == 0:
+                        if (r != row or c != col) and self.board[r][c] == 0 and self.hidden_board[r][c] == "-":
                             revealed_tiles = self._reveal_zeroes(r, c, revealed_tiles)
-                        elif (r != row or c != col) and self.board[r][c] != -1:
+                        elif (r != row or c != col) and self.board[r][c] != -1 and self.hidden_board[r][c] == "-":
                             self.hidden_board[r][c] = self.board[r][c]
                             revealed_tiles += 1
         return revealed_tiles
@@ -110,6 +113,8 @@ class MinesweeperGame:
             # Increase the score if flagged tile was a bomb
             if self.board[row][col] == -1:
                 self.score += 1
+            else:
+                self.score -= 1
             return True
 
         elif self.hidden_board[row][col] == 'F':
@@ -139,8 +144,10 @@ class MinesweeperGame:
         else:
             return self.game_over, self.score, self.board
 
-    def _reset(self):
-        self.board = self._generate_board(3, 1)
+    def _reset(self, board_size, num_bombs):
+        self.board = self._generate_board(board_size, num_bombs)
+        self.hidden_board = np.full((self.board_size, self.board_size), '-')
+        self.revealed_tiles = 0
         self.game_over = False
         self.score = 0
 
