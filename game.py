@@ -166,7 +166,3 @@ if __name__ == "__main__":
     main()
 
     print("Done")
-    #game = MinesweeperGame(10,9)
-    #print(game.board)
-
-    #IMPLEMENT RESETTING HIDDEN BOARD AND UNIT TESTS
