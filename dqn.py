@@ -11,12 +11,12 @@ class ReplayBuffer(object):
         self.mem_size = max_size
         self.mem_cntr = 0
         self.discrete = discrete
-        self.state_memory = np.zeroes((self.mem_size, input_shape))
+        self.state_memory = np.zeros((self.mem_size, input_shape))
         self.new_state_memory = np.zeros((self.mem_size, input_shape))
         dtype = np.int8 if self.discrete else np.float32
         self.action_memory = np.zeros((self.mem_size, n_actions), dtype=dtype)
         self.reward_memory = np.zeros(self.mem_size)
-        self.terminal_memory = np.zeroes(self.mem_size, dtype=np.float32)
+        self.terminal_memory = np.zeros(self.mem_size, dtype=np.float32)
 
     def store_transition(self, state, action, reward, state_, done):
         index = self.mem_cntr & self.mem_size
@@ -25,7 +25,7 @@ class ReplayBuffer(object):
         self.reward_memory[index] = reward
         self.terminal_memory[index] = 1 - int(done)
         if self.discrete:
-            actions = np.zeroes(self.action_memory.shape[1])
+            actions = np.zeros(self.action_memory.shape[1])
             actions[action] = 1.0
             self.action_memory[index] = actions
         else:
@@ -45,6 +45,7 @@ class ReplayBuffer(object):
         return states, actions, rewards, states_, terminal
 
 def build_dqn(lr,n_actions, input_dims, fc1_dims, fc2_dims):
+    
     model = Sequential([
                 Dense(fc1_dims, input_shape=(input_dims, )),
                 Activation('relu'),
@@ -60,7 +61,9 @@ class Agent(object):
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
                 input_dims, epsilon_dec=0.996, epsilon_end=0.01,
                 mem_size=100000, fname='dqn_model.h5'):
-        self.action = [i for i in range(n_actions)] #Tutaj trzeba będzie zmienić na nasze akcje w saperze
+        self.action_space = [i for i in range(n_actions)] #Tutaj trzeba będzie zmienić na nasze akcje w saperze
+        #self.action = actions
+        #self.n_actions = len(actions)
         self.n_actions = n_actions
         self.gamma = gamma
         self.epsilon = epsilon
@@ -69,9 +72,9 @@ class Agent(object):
         self.batch_size = batch_size
         self.model_file = fname
 
-        self.memory = ReplayBuffer(mem_size, input_dims, n_actions,
+        self.memory = ReplayBuffer(mem_size, input_dims, self.n_actions,
                                     discrete=True)
-        self.q_eval = build_dqn(alpha, n_actions, input_dims, 256, 256)
+        self.q_eval = build_dqn(alpha, self.n_actions, input_dims, 256, 256)
 
     def remember(self, state, action, reward, new_state, done):
         self.memory.store_transition(state, action, reward, new_state, done)
@@ -80,7 +83,7 @@ class Agent(object):
         state = state[np.newaxis, :]
         rand = np.random.random()
         if rand < self.epsilon:
-            action = np.random.choice(self.action)
+            action = np.random.choice(self.action_space)
         else:
             actions = self.q_eval.predict(state)
             action = np.argmax(actions)
@@ -102,7 +105,7 @@ class Agent(object):
 
         q_target = q_eval.copy()
 
-        batch_index = np.arrange(self.batch_size, dtype=np.int32)
+        batch_index = np.arange(self.batch_size, dtype=np.int32)
 
         q_target[batch_index, action_indices] = reward + \
                 self.gamma*np.max(q_next, axis=1)*done
@@ -117,9 +120,3 @@ class Agent(object):
 
     def load_model(self):
         self.q_eval = load_model(self.model_file)
-
-
-
-
-
-
