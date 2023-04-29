@@ -1,4 +1,5 @@
 import random
+from time import sleep
 import numpy as np
 import unittest
 
@@ -13,6 +14,17 @@ class MinesweeperGame:
         self.game_over = False
         self.score = 0
         self.revealed_tiles = 0
+        self.score_table = {
+            "reveal": 5,
+            "flag_correct": 2,
+            "flag_incorrect": -5,
+            "unflag_bomb": -1,
+            "click_revealed": -50,
+            "exploded": -10,
+            "win": 10,
+        }
+        self.moves_taken = []
+
 
     def _generate_board(self, board_size, row, col):
         self.board = np.zeros((board_size, board_size), dtype=int)
@@ -84,28 +96,31 @@ class MinesweeperGame:
             if self.revealed_tiles == 0:
                 self.board = self._generate_board(self.board_size, row, col)
             if self.board[row][col] == -1:
-                self.score -= 10
+                self.score += self.score_table["exploded"]
+                print(self.board)
+                print(self.hidden_board)
+                print(self.moves_taken)
                 self.game_over = True
                 self.revealed_tiles += 1
                 return self.board[row][col]
             else:
                 if self.board[row][col] == 0:
                     # Reveal all the adjacent tiles with DFS algorithm
-                    self.score += 1
+                    self.score += self.score_table["reveal"]
                     self.revealed_tiles = self._reveal_zeroes(row, col, self.revealed_tiles)
                 else:
                     # Reveal the tile
-                    self.score += 1
+                    self.score += self.score_table["reveal"]
                     self.hidden_board[row][col] = self.board[row][col]
                     self.revealed_tiles += 1
                     
                 if self.revealed_tiles == self.board_size ** 2 - self.num_bombs:
                     # All non-bomb tiles have been revealed
-                    self.score += 10
+                    self.score += self.score_table["win"]
                     self.game_over = True
                 return self.board[row][col]
         else:
-            self.score -= 1
+            self.score += self.score_table["click_revealed"]
             #print("This tile has already been revealed")
             return None
 
@@ -135,30 +150,32 @@ class MinesweeperGame:
             self.hidden_board[row][col] = 'F'
             # Increase the score if flagged tile was a bomb
             if self.board[row][col] == -1:
-                self.score += 1
+                self.score += self.score_table["flag_correct"]
             else:
-                self.score -= 1
+                self.score += self.score_table["flag_incorrect"]
             return True
 
         elif self.hidden_board[row][col] == 'F':
             self.hidden_board[row][col] = '-'
             # Decrease the score if unflagged tile was a bomb
             if self.board[row][col] == -1:
-                self.score -= 1
+                self.score += self.score_table["unflag_bomb"]
             return True
 
         else:
             #print("This tile has already been revealed and cannot be flagged")
-            self.score -= 1
+            self.score += self.score_table["click_revealed"]
             return False
 
     def _make_move(self, action):
         row, col, move = action
+        self.moves_taken.append(action)
         if move == 'R' or self.revealed_tiles == 0:
             self._reveal(row, col)
         else:
             self._flag(row, col)
         #print(self.hidden_board)
+        #sleep(1)
         #return self.hidden_board, self.score, self.game_over
 
 
@@ -177,6 +194,7 @@ class MinesweeperGame:
         self.revealed_tiles = 0
         self.game_over = False
         self.score = 0
+        self.moves_taken = []
         float_board = self._convert(self.hidden_board.flatten())
         return float_board
     
