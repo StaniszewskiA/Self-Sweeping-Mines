@@ -4,6 +4,7 @@ from game import MinesweeperGame
 from keras.layers import Dense, Activation, InputLayer
 from keras.models import Sequential, load_model
 from keras.optimizers import Adam
+
 import numpy as np
 
 class ReplayBuffer(object):
@@ -44,16 +45,13 @@ class ReplayBuffer(object):
 
         return states, actions, rewards, states_, terminal
 
-def build_dqn(lr, n_actions, input_dims, fc1_dims, fc2_dims, fc3_dims):
+def build_dqn(lr, n_actions, input_dims, fc1_dims, fc2_dims):
     
     
     model = Sequential([
-                Dense(3, input_shape=(input_dims, )),
-                Dense(fc1_dims),
+                Dense(fc1_dims, input_shape=(input_dims, )),
                 Activation('relu'),
                 Dense(fc2_dims),
-                Activation('relu'),
-                Dense(fc3_dims),
                 Activation('relu'),
                 Dense(n_actions)
             ])
@@ -64,7 +62,7 @@ def build_dqn(lr, n_actions, input_dims, fc1_dims, fc2_dims, fc3_dims):
 
 class Agent(object):
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
-                input_dims, epsilon_dec=0.996, epsilon_end=0.01,
+                input_dims, epsilon_dec=0.99996, epsilon_end=0.01,
                 mem_size=100000, fname='dqn_model.h5'):
         self.action_space = [i for i in range(n_actions)] #Tutaj trzeba będzie zmienić na nasze akcje w saperze
         self.actions_possible = [i for i in range(n_actions)]
@@ -80,7 +78,10 @@ class Agent(object):
 
         self.memory = ReplayBuffer(mem_size, input_dims, self.n_actions,
                                     discrete=True)
-        self.q_eval = build_dqn(alpha, self.n_actions, input_dims, 9, 9, 2)
+        try:
+            self.load_model()
+        except:
+            self.q_eval = build_dqn(alpha, self.n_actions, input_dims, 500, 250)
 
     def remember(self, state, action, reward, new_state, done):
         self.memory.store_transition(state, action, reward, new_state, done)
