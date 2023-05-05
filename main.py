@@ -4,9 +4,12 @@ import game
 import tensorflow
 
 tensorflow.keras.utils.disable_interactive_logging()
+print(tensorflow.config.experimental.list_physical_devices('GPU'))
+
+input()
 
 board_size = 9
-num_bombs = 15
+num_bombs = 20
 
 def gen_action_list():
     actions = []
@@ -49,7 +52,8 @@ if __name__ == "__main__":
         moves_taken = 0
         while not done:
             action = agent.choose_action(observation)
-            
+            if moves_taken == 0 and action % 2 == 1:
+                action -= 1
             env._make_move(actions[action])
             moves_taken += 1
             #print("Moves taken: ", moves_taken)
