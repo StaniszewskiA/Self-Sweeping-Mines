@@ -59,11 +59,11 @@ if __name__ == "__main__":
             if action in taken_actions:
                   done = True
                   break
-                taken_actions.append(action)
+            taken_actions.append(action)
             moves_taken += 1
             #print("Moves taken: ", moves_taken)
             done, reward, observation_m, is_won = env._get_state()
-            score += reward
+            score += reward + moves_taken
             agent.remember(observation, action, reward, observation_, done)
             observation = observation_
             agent.learn()
