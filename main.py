@@ -58,6 +58,8 @@ if __name__ == "__main__":
             env._make_move(actions[action])
             if action in taken_actions:
                   done = True
+                  break
+                taken_actions.append(action)
             moves_taken += 1
             #print("Moves taken: ", moves_taken)
             done, reward, observation_m, is_won = env._get_state()
