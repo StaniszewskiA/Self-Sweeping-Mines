@@ -1,9 +1,10 @@
 import random
 import unittest
 from game import MinesweeperGame
-from keras.layers import Dense, Activation
+from keras.layers import Dense, Activation, InputLayer
 from keras.models import Sequential, load_model
 from keras.optimizers import Adam
+
 import numpy as np
 
 class ReplayBuffer(object):
@@ -44,24 +45,27 @@ class ReplayBuffer(object):
 
         return states, actions, rewards, states_, terminal
 
-def build_dqn(lr,n_actions, input_dims, fc1_dims, fc2_dims):
+def build_dqn(lr, n_actions, input_dims, fc1_dims, fc2_dims):
+    
     
     model = Sequential([
                 Dense(fc1_dims, input_shape=(input_dims, )),
                 Activation('relu'),
                 Dense(fc2_dims),
                 Activation('relu'),
-                Dense(n_actions)])
+                Dense(n_actions)
+            ])
 
     model.compile(optimizer=Adam(lr=lr), loss='mse')
-
+    
     return model
 
 class Agent(object):
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
-                input_dims, epsilon_dec=0.996, epsilon_end=0.01,
+                input_dims, epsilon_dec=0.999, epsilon_end=0.01,
                 mem_size=100000, fname='dqn_model.h5'):
         self.action_space = [i for i in range(n_actions)] #Tutaj trzeba będzie zmienić na nasze akcje w saperze
+        self.actions_possible = [i for i in range(n_actions)]
         #self.action = actions
         #self.n_actions = len(actions)
         self.n_actions = n_actions
@@ -74,7 +78,10 @@ class Agent(object):
 
         self.memory = ReplayBuffer(mem_size, input_dims, self.n_actions,
                                     discrete=True)
-        self.q_eval = build_dqn(alpha, self.n_actions, input_dims, 256, 256)
+        try:
+            self.load_model()
+        except:
+            self.q_eval = build_dqn(alpha, self.n_actions, input_dims, 500, 250)
 
     def remember(self, state, action, reward, new_state, done):
         self.memory.store_transition(state, action, reward, new_state, done)
@@ -83,7 +90,8 @@ class Agent(object):
         state = state[np.newaxis, :]
         rand = np.random.random()
         if rand < self.epsilon:
-            action = np.random.choice(self.action_space)
+            action = np.random.choice(self.actions_possible)
+
         else:
             actions = self.q_eval.predict(state)
             action = np.argmax(actions)
@@ -115,8 +123,11 @@ class Agent(object):
         self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > \
                         self.epsilon_min else self.epsilon_min
 
+    def refresh_actions(self):
+        self.actions_possible = [i for i in range(self.n_actions)]
+
     def save_model(self):
         self.q_eval.save(self.model_file)
-
+        
     def load_model(self):
         self.q_eval = load_model(self.model_file)
