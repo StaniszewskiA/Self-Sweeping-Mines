@@ -41,6 +41,8 @@ class MinesweeperGame:
         return self.board
 
     def _place_bombs(self, row, col):
+        seed = 42
+        random.seed(seed)
         excluded_locations = []
         for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
