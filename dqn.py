@@ -1,9 +1,10 @@
 import random
 import unittest
 from game import MinesweeperGame
-from keras.layers import Dense, Activation
+from keras.layers import Dense, Activation, InputLayer
 from keras.models import Sequential, load_model
 from keras.optimizers import Adam
+
 import numpy as np
 
 class ReplayBuffer(object):
@@ -11,12 +12,12 @@ class ReplayBuffer(object):
         self.mem_size = max_size
         self.mem_cntr = 0
         self.discrete = discrete
-        self.state_memory = np.zeroes((self.mem_size, input_shape))
+        self.state_memory = np.zeros((self.mem_size, input_shape))
         self.new_state_memory = np.zeros((self.mem_size, input_shape))
         dtype = np.int8 if self.discrete else np.float32
         self.action_memory = np.zeros((self.mem_size, n_actions), dtype=dtype)
         self.reward_memory = np.zeros(self.mem_size)
-        self.terminal_memory = np.zeroes(self.mem_size, dtype=np.float32)
+        self.terminal_memory = np.zeros(self.mem_size, dtype=np.float32)
 
     def store_transition(self, state, action, reward, state_, done):
         index = self.mem_cntr & self.mem_size
@@ -25,7 +26,7 @@ class ReplayBuffer(object):
         self.reward_memory[index] = reward
         self.terminal_memory[index] = 1 - int(done)
         if self.discrete:
-            actions = np.zeroes(self.action_memory.shape[1])
+            actions = np.zeros(self.action_memory.shape[1])
             actions[action] = 1.0
             self.action_memory[index] = actions
         else:
@@ -44,16 +45,19 @@ class ReplayBuffer(object):
 
         return states, actions, rewards, states_, terminal
 
-def build_dqn(lr,n_actions, input_dims, fc1_dims, fc2_dims):
+def build_dqn(lr, n_actions, input_dims, fc1_dims, fc2_dims):
+    
+    
     model = Sequential([
                 Dense(fc1_dims, input_shape=(input_dims, )),
                 Activation('relu'),
                 Dense(fc2_dims),
                 Activation('relu'),
-                Dense(n_actions)])
+                Dense(n_actions)
+            ])
 
     model.compile(optimizer=Adam(lr=lr), loss='mse')
-
+    
     return model
 
 """
@@ -86,9 +90,12 @@ def build_dqn(lr, n_actions, input_dims):
 
 class Agent(object):
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
-                input_dims, epsilon_dec=0.996, epsilon_end=0.01,
+                input_dims, epsilon_dec=0.999, epsilon_end=0.01,
                 mem_size=100000, fname='dqn_model.h5'):
-        self.action = [i for i in range(n_actions)] #Tutaj trzeba będzie zmienić na nasze akcje w saperze
+        self.action_space = [i for i in range(n_actions)] #Tutaj trzeba będzie zmienić na nasze akcje w saperze
+        self.actions_possible = [i for i in range(n_actions)]
+        #self.action = actions
+        #self.n_actions = len(actions)
         self.n_actions = n_actions
         self.gamma = gamma
         self.epsilon = epsilon
@@ -97,10 +104,17 @@ class Agent(object):
         self.batch_size = batch_size
         self.model_file = fname
 
-        self.memory = ReplayBuffer(mem_size, input_dims, n_actions,
+        self.memory = ReplayBuffer(mem_size, input_dims, self.n_actions,
                                     discrete=True)
+<<<<<<< HEAD
         self.q_eval = build_dqn(alpha, n_actions, input_dims, 256, 256)
         self.actions_taken = set()
+=======
+        try:
+            self.load_model()
+        except:
+            self.q_eval = build_dqn(alpha, self.n_actions, input_dims, 500, 250)
+>>>>>>> bfc8de291e6efb0be06445e1878aadafb48cff3c
 
     def remember(self, state, action, reward, new_state, done):
         self.memory.store_transition(state, action, reward, new_state, done)
@@ -109,7 +123,12 @@ class Agent(object):
         state = state[np.newaxis, :]
         rand = np.random.random()
         if rand < self.epsilon:
+<<<<<<< HEAD
             action = np.random.choice([i for i in range(self.action) if i not in self.actions_taken])
+=======
+            action = np.random.choice(self.actions_possible)
+
+>>>>>>> bfc8de291e6efb0be06445e1878aadafb48cff3c
         else:
             actions = self.q_eval.predict(state)
             action = np.argmax(actions)
@@ -132,7 +151,7 @@ class Agent(object):
 
         q_target = q_eval.copy()
 
-        batch_index = np.arrange(self.batch_size, dtype=np.int32)
+        batch_index = np.arange(self.batch_size, dtype=np.int32)
 
         q_target[batch_index, action_indices] = reward + \
                 self.gamma*np.max(q_next, axis=1)*done
@@ -142,14 +161,11 @@ class Agent(object):
         self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > \
                         self.epsilon_min else self.epsilon_min
 
+    def refresh_actions(self):
+        self.actions_possible = [i for i in range(self.n_actions)]
+
     def save_model(self):
         self.q_eval.save(self.model_file)
-
+        
     def load_model(self):
         self.q_eval = load_model(self.model_file)
-
-
-
-
-
-

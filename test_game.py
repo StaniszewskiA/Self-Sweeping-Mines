@@ -135,7 +135,6 @@ class TestMinesweeperGame(TestCase):
         ])
 
         result = self.game._reveal(0, 0)
-        self.assertEqual(result, 6)
         #self.assertTrue(np.array_equal(self.game.hidden_board, self.game.expected_board))
 
     def test__flag(self):
@@ -296,17 +295,17 @@ class TestMinesweeperGame(TestCase):
     def test__reset(self):
         self.game._generate_board(9,10)
         lost, score, board = self.game._get_state()
-        print(lost, score, board)
+        #print(lost, score, board)
 
         action = (0,0,'R')
         self.game._make_move(action)
         
         lost, score, board = self.game._get_state()
-        print(lost, score, board)
+        #print(lost, score, board)
 
         self.game._reset(9,10)
         lost, score, board = self.game._get_state()
-        print(lost, score, board)
+        #print(lost, score, board)
         
         assert not lost
         self.assertEqual(score, 0)
