@@ -106,15 +106,8 @@ class Agent(object):
 
         self.memory = ReplayBuffer(mem_size, input_dims, self.n_actions,
                                     discrete=True)
-<<<<<<< HEAD
         self.q_eval = build_dqn(alpha, n_actions, input_dims, 256, 256)
         self.actions_taken = set()
-=======
-        try:
-            self.load_model()
-        except:
-            self.q_eval = build_dqn(alpha, self.n_actions, input_dims, 500, 250)
->>>>>>> bfc8de291e6efb0be06445e1878aadafb48cff3c
 
     def remember(self, state, action, reward, new_state, done):
         self.memory.store_transition(state, action, reward, new_state, done)
@@ -123,12 +116,7 @@ class Agent(object):
         state = state[np.newaxis, :]
         rand = np.random.random()
         if rand < self.epsilon:
-<<<<<<< HEAD
             action = np.random.choice([i for i in range(self.action) if i not in self.actions_taken])
-=======
-            action = np.random.choice(self.actions_possible)
-
->>>>>>> bfc8de291e6efb0be06445e1878aadafb48cff3c
         else:
             actions = self.q_eval.predict(state)
             action = np.argmax(actions)
