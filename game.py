@@ -11,6 +11,7 @@ class MinesweeperGame:
         self.board = None
         self.hidden_board = np.full((self.board_size, self.board_size), '-')
         #self.bomb_locations = self._place_bombs() do wyrzucenia
+        self.game_won = False
         self.game_over = False
         self.score = 0
         self.reward = 0
@@ -130,6 +131,7 @@ class MinesweeperGame:
                     self.score += self.score_table["win"]
                     self.reward = self.score_table["win"]
                     print("Game won!")
+                    self.game_won = True
                     self.game_over = True
                 return self.board[row][col]
         elif self.hidden_board[row][col] == 'F':
@@ -219,7 +221,7 @@ class MinesweeperGame:
         else:
             float_board = self._convert(self.board.flatten())
             #return self.game_over, self.score, self.board.flatten()
-        return self.game_over, self.reward, float_board
+        return self.game_over, self.reward, float_board, self.game_won
 
     def _reset(self, board_size, num_bombs):
         self.board = None
@@ -228,6 +230,7 @@ class MinesweeperGame:
         self.game_over = False
         self.score = 0
         self.moves_taken = []
+        self.game_won = False
         float_board = self._convert(self.hidden_board.flatten())
         return float_board
     
