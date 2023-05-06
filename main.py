@@ -69,8 +69,7 @@ if __name__ == "__main__":
         avg_score = np.mean(scores[max(0, i-100):(i+1)])
         print('episode', i+int(eps_before), "score %.2f" % score,
                 'average score %.2f' % avg_score)
-
-        print(f"Taken actions: {agent.actions_taken}")  
+        
         actions = gen_action_list()
 
         agent.refresh_actions()
@@ -80,5 +79,3 @@ if __name__ == "__main__":
             f.write(str(i))
             f.close()
             agent.save_model()
-    
-
