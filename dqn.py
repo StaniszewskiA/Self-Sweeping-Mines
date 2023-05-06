@@ -56,6 +56,34 @@ def build_dqn(lr,n_actions, input_dims, fc1_dims, fc2_dims):
 
     return model
 
+"""
+def build_dqn(lr, n_actions, input_dims):
+    #Define the input shape
+    input_layer = Input(shape=input_dims) 
+
+    #Add three 2D convolutional layers with ReLU activation
+    conv1 = Conv2D(filters=32, kernel_size=3, padding='same', activation='relu')(input_layer)
+    conv1 = Conv2D(filters=64, kernel_size=3, padding='same', activation='relu')(conv1)
+    conv1 = Conv2D(filters=64, kernel_size=3, padding='same', activation='relu')(conv2)
+
+    #Flatten the output of the convolutional layers
+    flatten = Flatten()(conv3)
+    
+    #Add 2 fully connected layers with ReLU activation
+    dense1 = Dense(units=512, activation='relu')(flatten)
+    dense2 = Dense(units=256, activation='relu')(dense1)
+
+    #Add the output layer with linear activation
+    output_layer = Dense(units=n_actions, activation='linear')(dense2)
+
+    #Define the model
+    model = Model(inputs=input_layer, outputs=output_layer)
+    model.compile(optimizer=Adam(lr=lr), loss='mse)
+
+    return model
+
+"""
+
 class Agent(object):
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
                 input_dims, epsilon_dec=0.996, epsilon_end=0.01,
@@ -72,6 +100,7 @@ class Agent(object):
         self.memory = ReplayBuffer(mem_size, input_dims, n_actions,
                                     discrete=True)
         self.q_eval = build_dqn(alpha, n_actions, input_dims, 256, 256)
+        self.actions_taken = set()
 
     def remember(self, state, action, reward, new_state, done):
         self.memory.store_transition(state, action, reward, new_state, done)
@@ -80,11 +109,12 @@ class Agent(object):
         state = state[np.newaxis, :]
         rand = np.random.random()
         if rand < self.epsilon:
-            action = np.random.choice(self.action)
+            action = np.random.choice([i for i in range(self.action) if i not in self.actions_taken])
         else:
             actions = self.q_eval.predict(state)
             action = np.argmax(actions)
 
+        self.actions_taken.add(action)
         return action
 
     def learn(self):
