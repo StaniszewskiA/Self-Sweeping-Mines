@@ -46,6 +46,7 @@ if __name__ == "__main__":
     
     print(eps_before)
     for i in range(n_games):
+        taken_actions = []
         done = False
         score = 0
         observation = env._reset(board_size,num_bombs)
@@ -55,9 +56,11 @@ if __name__ == "__main__":
             if moves_taken == 0 and action % 2 == 1:
                 action -= 1
             env._make_move(actions[action])
+            if action in taken_actions:
+                  done = True
             moves_taken += 1
             #print("Moves taken: ", moves_taken)
-            done, reward, observation_ = env._get_state()
+            done, reward, observation_m, is_won = env._get_state()
             score += reward
             agent.remember(observation, action, reward, observation_, done)
             observation = observation_
@@ -68,7 +71,7 @@ if __name__ == "__main__":
 
         avg_score = np.mean(scores[max(0, i-100):(i+1)])
         print('episode', i+int(eps_before), "score %.2f" % score,
-                'average score %.2f' % avg_score)
+                'average score %.2f' % avg_score, 'won:' % is_won)
         
         actions = gen_action_list()
 
